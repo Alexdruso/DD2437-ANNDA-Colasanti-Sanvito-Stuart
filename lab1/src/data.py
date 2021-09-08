@@ -32,5 +32,3 @@ def generate_binary_classification_data(
     )
 
     return result.sample(frac=1)
-
-    return result
