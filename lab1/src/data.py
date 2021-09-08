@@ -6,8 +6,8 @@ import numpy as np
 
 def generate_binary_classification_data(
         n: int = 100,
-        mA: Tuple[float] = (1.0, 0.5),
-        mB: Tuple[float] = (-1.0, 0.0),
+        mA: Tuple[float] = (2.0, 0.5),
+        mB: Tuple[float] = (-2.0, 0.0),
         sigmaA: float = 0.5,
         sigmaB: float = 0.5
 ) -> pd.DataFrame:
