@@ -2,6 +2,7 @@ from typing import Tuple
 
 import pandas as pd
 import numpy as np
+from math import ceil, floor
 
 
 def generate_binary_classification_data(
@@ -12,7 +13,8 @@ def generate_binary_classification_data(
         sigmaA: float = 0.5,
         sigmaB: float = 0.5,
         classes: Tuple = (1, 0),
-        reset_index: bool = False
+        reset_index: bool = False,
+        stationary_distribution: bool = True
 ) -> pd.DataFrame:
     size_positive_class = int(n * class_ratio)
     size_negative_class = n - size_positive_class
@@ -21,7 +23,13 @@ def generate_binary_classification_data(
         [
             pd.DataFrame(
                 {
-                    'x1': np.random.normal(size=size_positive_class, loc=mA[0], scale=sigmaA),
+                    'x1': np.random.normal(size=size_positive_class, loc=mA[0], scale=sigmaA) if stationary_distribution
+                    else np.concatenate(
+                        (
+                            np.random.normal(size=ceil(size_positive_class * 0.5), loc=-mA[0], scale=sigmaA),
+                            np.random.normal(size=floor(size_positive_class * 0.5), loc=mA[0], scale=sigmaA)
+                        )
+                    ),
                     'x2': np.random.normal(size=size_positive_class, loc=mA[1], scale=sigmaA),
                     'y': np.full(shape=size_positive_class, fill_value=classes[0])
                 }
