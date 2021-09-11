@@ -4,19 +4,27 @@ import numpy as np
 import pandas as pd
 
 
-def _fit_delta_online(weights: np.array, X: np.array, y: np.array, learning_rate: float) -> np.array:
+def _fit_delta_online(weights: np.array, X: np.array, y: np.array, learning_rate: float, classes: Tuple) -> np.array:
     for index in range(len(X)):
-        weights = weights - 0.1 * ((weights @ X[:, index] - y[:, index]) * X[:, index].T)
+        weights = weights - learning_rate * ((weights @ X[:, index] - y[:, index]) * X[:, index].T)
 
     return weights
 
 
-def _fit_delta_batch(weights: np.array, X: np.array, y: np.array, learning_rate: float) -> np.array:
+def _fit_delta_batch(weights: np.array, X: np.array, y: np.array, learning_rate: float, classes: Tuple) -> np.array:
     return weights - learning_rate * ((weights @ X - y) @ X.T)
 
 
-def _fit_perceptron(weights: np.array, X: np.array, y: np.array, learning_rate: float) -> np.array:
-    return None
+def _fit_perceptron(weights: np.array, X: np.array, y: np.array, learning_rate: float, classes: Tuple) -> np.array:
+    for index in range(len(X)):
+        prediction = np.where(weights @ X[:, index] > 0, classes[0], classes[1]).item()
+        ground_truth = y[:, index].item()
+
+        if prediction != ground_truth:
+            weights = weights + learning_rate * X[:, index] if prediction == classes[1] \
+                else weights - learning_rate * X[:, index]
+
+    return weights
 
 
 learning_rules = {
@@ -36,6 +44,7 @@ class Perceptron:
     tolerance: float
     warm_start: bool
     classes: Tuple
+    weights: np.array
 
     def __init__(
             self,
@@ -68,18 +77,24 @@ class Perceptron:
         X = X.T
         y = y.T
 
-        weights = np.concatenate((self.intercept_, self.coef_)) if self.warm_start \
+        weights = self.weights if self.warm_start \
             else np.random.normal(size=(1, X.shape[0]))
 
         learning_rule = learning_rules[self.learning_rule]
 
         for epoch in range(self.max_iterations):  # apply learning rule to weights and if converged break
-            weights = learning_rule(weights, X, y, self.learning_rate)
+            weights = learning_rule(weights, X, y, self.learning_rate, self.classes)
 
         weights = weights.flatten()
+        self.weights = weights
 
-        self.intercept_ = weights[0]
-        self.coef_ = weights[1:]
+    @property
+    def intercept_(self):
+        return self.weights[0]
+
+    @property
+    def coef_(self):
+        return self.weights[1:]
 
     def predict(self, X) -> np.array:
         result = self.coef_ @ X.T + self.intercept_
