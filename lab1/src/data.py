@@ -21,15 +21,15 @@ def generate_binary_classification_data(
         [
             pd.DataFrame(
                 {
-                    'x1': np.random.normal(size=size_positive_class) * sigmaA + mA[0],
-                    'x2': np.random.normal(size=size_positive_class) * sigmaA + mA[1],
+                    'x1': np.random.normal(size=size_positive_class, loc=mA[0], scale=sigmaA),
+                    'x2': np.random.normal(size=size_positive_class, loc=mA[1], scale=sigmaA),
                     'y': np.full(shape=size_positive_class, fill_value=classes[0])
                 }
             ),
             pd.DataFrame(
                 {
-                    'x1': np.random.normal(size=size_negative_class) * sigmaB + mB[0],
-                    'x2': np.random.normal(size=size_negative_class) * sigmaB + mB[1],
+                    'x1': np.random.normal(size=size_negative_class, loc=mB[0], scale=sigmaB),
+                    'x2': np.random.normal(size=size_negative_class, loc=mB[1], scale=sigmaB),
                     'y': np.full(shape=size_negative_class, fill_value=classes[1])
                 }
             )
