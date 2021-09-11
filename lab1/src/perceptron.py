@@ -1,3 +1,5 @@
+from typing import Tuple
+
 import numpy as np
 import pandas as pd
 
@@ -10,7 +12,7 @@ def _fit_delta_online(weights: np.array, X: np.array, y: np.array, learning_rate
 
 
 def _fit_delta_batch(weights: np.array, X: np.array, y: np.array, learning_rate: float) -> np.array:
-    return weights - learning_rate * ((weights@X - y) @ X.T)
+    return weights - learning_rate * ((weights @ X - y) @ X.T)
 
 
 def _fit_perceptron(weights: np.array, X: np.array, y: np.array, learning_rate: float) -> np.array:
@@ -33,15 +35,17 @@ class Perceptron:
     max_iterations: int
     tolerance: float
     warm_start: bool
+    classes: Tuple
 
     def __init__(
             self,
             fit_intercept: bool = True,
             learning_rule: str = 'delta_batch',
-            learning_rate: float = 1e-1,
+            learning_rate: float = 1e-3,
             max_iterations: int = 100,
             tolerance: float = None,
-            warm_start: bool = False
+            warm_start: bool = False,
+            classes: Tuple = (1, -1)
     ):
         self.fit_intercept = fit_intercept
         self.learning_rule = learning_rule
@@ -49,6 +53,7 @@ class Perceptron:
         self.max_iterations = max_iterations
         self.tolerance = tolerance
         self.warm_start = warm_start
+        self.classes = classes
 
     def fit(self, X, y) -> None:
         if X is pd.DataFrame: X = X.to_numpy()
@@ -57,7 +62,7 @@ class Perceptron:
         if self.fit_intercept:
             X = np.hstack(
                 (np.reshape(np.ones(len(X)), (len(X), 1)),
-                X)
+                 X)
             )
 
         X = X.T
@@ -77,5 +82,6 @@ class Perceptron:
         self.coef_ = weights[1:]
 
     def predict(self, X) -> np.array:
-        return self.coef_ @ X.T + self.intercept_
+        result = self.coef_ @ X.T + self.intercept_
 
+        return np.where(result > 0, self.classes[0], self.classes[1])
