@@ -90,11 +90,11 @@ class Perceptron:
 
     @property
     def intercept_(self):
-        return self.weights[0]
+        return self.weights[0] if self.fit_intercept else 0
 
     @property
     def coef_(self):
-        return self.weights[1:]
+        return self.weights[1:] if self.fit_intercept else self.weights
 
     def predict(self, X) -> np.array:
         result = self.coef_ @ X.T + self.intercept_
