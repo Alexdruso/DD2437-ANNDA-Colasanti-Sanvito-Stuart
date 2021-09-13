@@ -6,7 +6,7 @@ from sklearn.metrics import mean_squared_error, accuracy_score
 
 
 def _fit_delta_online(weights: np.array, X: np.array, y: np.array, learning_rate: float) -> np.array:
-    for index in range(len(X)):
+    for index in range(len(X.T)):
         weights = weights - learning_rate * ((weights @ X[:, index] - y[:, index]) * X[:, index].T)
 
     return weights
@@ -17,7 +17,7 @@ def _fit_delta_batch(weights: np.array, X: np.array, y: np.array, learning_rate:
 
 
 def _fit_perceptron(weights: np.array, X: np.array, y: np.array, learning_rate: float) -> np.array:
-    for index in range(len(X)):
+    for index in range(len(X.T)):
         prediction = np.where(weights @ X[:, index] > 0, 1, -1).item()
         ground_truth = y[:, index].item()
         weights = weights + learning_rate * (ground_truth - prediction) * X[:, index]
@@ -44,6 +44,8 @@ class Perceptron:
     classes: Tuple
     weights: np.array
     error_per_epoch: dict
+    loc: int
+    scale: int
 
     def __init__(
             self,
@@ -52,7 +54,9 @@ class Perceptron:
             learning_rate: float = 1e-3,
             max_iterations: int = 100,
             tolerance: float = None,
-            warm_start: bool = False
+            warm_start: bool = False,
+            loc: int = 0,
+            scale: int = 1
     ):
         self.fit_intercept = fit_intercept
         self.learning_rule = learning_rule
@@ -64,6 +68,8 @@ class Perceptron:
             'accuracy': [],
             'mse': []
         }
+        self.loc = loc
+        self.scale = scale
 
     def fit(self, X, y) -> None:
         if X is pd.DataFrame: X = X.to_numpy()
@@ -79,7 +85,7 @@ class Perceptron:
         y = y.T
 
         self.weights = self.weights if self.warm_start \
-            else np.random.normal(size=(1, X.shape[0]))
+            else np.random.normal(size=(1, X.shape[0]), loc=self.loc, scale=self.scale)
 
         learning_rule = learning_rules[self.learning_rule]
 
@@ -88,8 +94,10 @@ class Perceptron:
 
             raw_prediction = self.weights @ X
             prediction = np.where(raw_prediction > 0, 1, -1)
-            self.error_per_epoch['accuracy'] += [accuracy_score(y, prediction)]
+            self.error_per_epoch['accuracy'] += [accuracy_score(y.flatten(), prediction.flatten())]
             self.error_per_epoch['mse'] += [mean_squared_error(y, raw_prediction)]
+
+            if self.error_per_epoch['accuracy'][-1] == 1 and self.learning_rule == 'perceptron': return
 
     @property
     def intercept_(self):
