@@ -75,6 +75,11 @@ class Perceptron:
         if X is pd.DataFrame: X = X.to_numpy()
         if y is pd.DataFrame: y = y.to_numpy()
 
+        self.error_per_epoch = {
+            'accuracy': [],
+            'mse': []
+        }
+
         if self.fit_intercept:
             X = np.hstack(
                 (np.reshape(np.ones(len(X)), (len(X), 1)),
@@ -96,8 +101,6 @@ class Perceptron:
             prediction = np.where(raw_prediction > 0, 1, -1)
             self.error_per_epoch['accuracy'] += [accuracy_score(y.flatten(), prediction.flatten())]
             self.error_per_epoch['mse'] += [mean_squared_error(y, raw_prediction)]
-
-            if self.error_per_epoch['accuracy'][-1] == 1 and self.learning_rule == 'perceptron': return
 
     @property
     def intercept_(self):
