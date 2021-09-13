@@ -45,5 +45,5 @@ def plot_decision_boundary(
 
     if path is not None:
         plt.savefig(path)
-        
+
     plt.show()
