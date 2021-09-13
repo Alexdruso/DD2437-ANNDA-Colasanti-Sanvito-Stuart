@@ -2,9 +2,10 @@ from typing import Tuple
 
 import numpy as np
 import pandas as pd
+from sklearn.metrics import mean_squared_error, accuracy_score
 
 
-def _fit_delta_online(weights: np.array, X: np.array, y: np.array, learning_rate: float, classes: Tuple) -> np.array:
+def _fit_delta_online(weights: np.array, X: np.array, y: np.array, learning_rate: float) -> np.array:
     for index in range(len(X)):
         weights = weights - learning_rate * ((weights @ X[:, index] - y[:, index]) * X[:, index].T)
 
@@ -42,6 +43,7 @@ class Perceptron:
     warm_start: bool
     classes: Tuple
     weights: np.array
+    error_per_epoch: dict
 
     def __init__(
             self,
@@ -58,6 +60,10 @@ class Perceptron:
         self.max_iterations = max_iterations
         self.tolerance = tolerance
         self.warm_start = warm_start
+        self.error_per_epoch = {
+            'accuracy': [],
+            'mse': []
+        }
 
     def fit(self, X, y) -> None:
         if X is pd.DataFrame: X = X.to_numpy()
@@ -72,24 +78,26 @@ class Perceptron:
         X = X.T
         y = y.T
 
-        weights = self.weights if self.warm_start \
+        self.weights = self.weights if self.warm_start \
             else np.random.normal(size=(1, X.shape[0]))
 
         learning_rule = learning_rules[self.learning_rule]
 
         for epoch in range(self.max_iterations):  # apply learning rule to weights and if converged break
-            weights = learning_rule(weights, X, y, self.learning_rate)
+            self.weights = learning_rule(self.weights, X, y, self.learning_rate)
 
-        weights = weights.flatten()
-        self.weights = weights
+            raw_prediction = self.weights @ X
+            prediction = np.where(raw_prediction > 0, 1, -1)
+            self.error_per_epoch['accuracy'] += [accuracy_score(y, prediction)]
+            self.error_per_epoch['mse'] += [mean_squared_error(y, raw_prediction)]
 
     @property
     def intercept_(self):
-        return self.weights[0] if self.fit_intercept else 0
+        return self.weights.flatten()[0] if self.fit_intercept else 0
 
     @property
     def coef_(self):
-        return self.weights[1:] if self.fit_intercept else self.weights
+        return self.weights.flatten()[1:] if self.fit_intercept else self.weights
 
     def predict(self, X) -> np.array:
         result = self.coef_ @ X.T + self.intercept_
