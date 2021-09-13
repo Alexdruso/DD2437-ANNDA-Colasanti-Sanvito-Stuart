@@ -26,7 +26,7 @@ def plot_decision_boundary(
 
     if negative_new is not None:
         plt.scatter(negative_new[:, 0], negative_new[:, 1], label='Negative', marker='x', color='red', alpha=0.3)
-        
+
     # Plot the models' decision boundaries (if any)
 
     for index in range(len(models)):
