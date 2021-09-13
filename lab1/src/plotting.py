@@ -7,6 +7,8 @@ def plot_decision_boundary(
         X: np.array,
         positive: np.array,
         negative: np.array,
+        positive_new: np.array = None,
+        negative_new: np.array = None,
         models: List = None,
         names: List = None,
         path: str = None
@@ -16,9 +18,15 @@ def plot_decision_boundary(
     if names is None:
         names = []
     plt.figure(figsize=(12, 7))
-    plt.scatter(positive[:, 0], positive[:, 1], label='Positive')
-    plt.scatter(negative[:, 0], negative[:, 1], label='Negative', marker='x')
+    plt.scatter(positive[:, 0], positive[:, 1], label='Positive', color='blue')
+    plt.scatter(negative[:, 0], negative[:, 1], label='Negative', marker='x', color='red')
 
+    if positive_new is not None:
+        plt.scatter(positive_new[:, 0], positive_new[:, 1], label='Positive', color='blue', alpha=0.3)
+
+    if negative_new is not None:
+        plt.scatter(negative_new[:, 0], negative_new[:, 1], label='Negative', marker='x', color='red', alpha=0.3)
+        
     # Plot the models' decision boundaries (if any)
 
     for index in range(len(models)):
