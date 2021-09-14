@@ -9,6 +9,7 @@ class TwoLayerPerceptron:
     tolerance: float
     hidden_layer_size: int
     validation_fraction: float
+    is_classification_task: bool
     mode: str
 
     classes_: np.array
@@ -21,17 +22,16 @@ class TwoLayerPerceptron:
     error_per_epoch_val: dict
 
     def __init__(
-            self,
-            mode: str = 'batch',
-            learning_rate: float = 1e-3,
-            momentum: float = 0.9,
-            max_iterations: int = 100,
-            tolerance: float = None,
-            hidden_layer_size: int = None,
-            validation_fraction: float = 0.2,
+        self,
+        mode: str = 'batch',
+        learning_rate: float = 1e-3,
+        momentum: float = 0.9,
+        max_iterations: int = 100,
+        tolerance: float = None,
+        hidden_layer_size: int = None,
+        validation_fraction: float = 0.2,
+        is_classification_task: bool = True
     ):
-        self._reset()
-
         self.mode = mode
         self.learning_rate = learning_rate
         self.momentum = momentum
@@ -39,17 +39,28 @@ class TwoLayerPerceptron:
         self.tolerance = tolerance
         self.hidden_layer_size = hidden_layer_size
         self.validation_fraction = validation_fraction
+        self.is_classification_task = is_classification_task
+        self._reset()
 
     def _reset(self) -> None:
-        self.error_per_epoch = {
-            'accuracy': [],
-            'mse': []
-        }
+        if self.is_classification_task:
+            self.error_per_epoch = {
+                'accuracy': [],
+                'mse': []
+            }
 
-        self.error_per_epoch_val = {
-            'accuracy': [],
-            'mse': []
-        }
+            self.error_per_epoch_val = {
+                'accuracy': [],
+                'mse': []
+            }
+        else:
+            self.error_per_epoch = {
+                'mse': []
+            }
+
+            self.error_per_epoch_val = {
+                'mse': []
+            }
 
         self.prev_delta_W_ = 0
         self.prev_delta_V_ = 0
@@ -91,6 +102,17 @@ class TwoLayerPerceptron:
 
         return new_W, new_V
 
+    def _evaluate_performance(self, X, y, W, V, error) -> None:
+        _, pred = self._forward_pass(X, W, V)
+
+        error['mse'].append(self._mean_square_error(
+            pred, y))
+
+        if self.is_classification_task:
+            pred_class = self._get_class_from_prediction(pred[0])
+            error['accuracy'].append(self._misclassification_ratio(
+                pred, y))
+
     def _get_class_from_prediction(self, pred) -> np.array:
         return np.where(pred < np.mean(self.classes_),
                         self.classes_[0], self.classes_[1])
@@ -102,9 +124,12 @@ class TwoLayerPerceptron:
         return np.sum(pred != y)/len(y)
 
     def fit(self, X: np.array, y: np.array) -> None:
-        self.classes_ = np.unique(y)
-        n_classes = len(self.classes_)
-        self.n_outputs_ = 1 if n_classes == 2 else n_classes
+        if self.is_classification_task:
+            self.classes_ = np.unique(y)
+            n_classes = len(self.classes_)
+            self.n_outputs_ = 1 if n_classes == 2 else n_classes
+        else:
+            self.n_outputs_ = 1
 
         self._reset()
 
@@ -146,21 +171,12 @@ class TwoLayerPerceptron:
                     W, V = self._weight_update(
                         X_curr, W, V, H, delta_H, delta_O)
 
-            _, pred = self._forward_pass(X_train, W, V)
-            pred = self._get_class_from_prediction(pred[0])
-
-            self.error_per_epoch['mse'].append(self._mean_square_error(
-                pred, y_train))
-            self.error_per_epoch['accuracy'].append(self._misclassification_ratio(
-                pred, y_train))
+            self._evaluate_performance(
+                X_train, y_train, W, V, self.error_per_epoch)
 
             if self.validation_fraction != 0:
-                _, pred_val = self._forward_pass(X_val, W, V)
-                pred_val = self._get_class_from_prediction(pred_val)
-                self.error_per_epoch_val['mse'].append(self._mean_square_error(
-                    pred_val, y_val))
-                self.error_per_epoch_val['accuracy'].append(self._misclassification_ratio(
-                    pred_val, y_val))
+                self._evaluate_performance(
+                    X_val, y_val, W, V, self.error_per_epoch_val)
 
         self.W_ = W.copy()
         self.V_ = V.copy()
