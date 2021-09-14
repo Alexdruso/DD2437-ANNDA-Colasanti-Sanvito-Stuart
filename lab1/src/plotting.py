@@ -62,8 +62,6 @@ def plot_learning_curve(
         metric: str,
         path: str = None
 ) -> None:
-    if names is None:
-        names = []
     plt.figure(figsize=(12, 7))
 
     for index in range(len(errors)):
