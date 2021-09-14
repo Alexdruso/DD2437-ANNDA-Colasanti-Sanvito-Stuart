@@ -45,12 +45,12 @@ class TwoLayerPerceptron:
     def _reset(self) -> None:
         if self.is_classification_task:
             self.error_per_epoch = {
-                'accuracy': [],
+                'missclassification_error': [],
                 'mse': []
             }
 
             self.error_per_epoch_val = {
-                'accuracy': [],
+                'missclassification_error': [],
                 'mse': []
             }
         else:
@@ -110,8 +110,8 @@ class TwoLayerPerceptron:
 
         if self.is_classification_task:
             pred_class = self._get_class_from_prediction(pred[0])
-            error['accuracy'].append(self._misclassification_ratio(
-                pred, y))
+            error['missclassification_error'].append(self._misclassification_ratio(
+                pred_class, y))
 
     def _get_class_from_prediction(self, pred) -> np.array:
         return np.where(pred < np.mean(self.classes_),
