@@ -6,6 +6,7 @@ X = data.iloc[:, :-1].to_numpy()
 y = data.iloc[:, -1].to_numpy()
 
 p = TwoLayerPerceptron(
+    mode='online',
     learning_rate=1e-3,
     momentum=0.9,
     max_iterations=300,

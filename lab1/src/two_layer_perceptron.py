@@ -9,6 +9,7 @@ class TwoLayerPerceptron:
     tolerance: float
     hidden_layer_size: int
     validation_fraction: float
+    mode: str
 
     classes_: np.array
     n_outputs_: int
@@ -21,6 +22,7 @@ class TwoLayerPerceptron:
 
     def __init__(
             self,
+            mode: str = 'batch',
             learning_rate: float = 1e-3,
             momentum: float = 0.9,
             max_iterations: int = 100,
@@ -30,6 +32,7 @@ class TwoLayerPerceptron:
     ):
         self._reset()
 
+        self.mode = mode
         self.learning_rate = learning_rate
         self.momentum = momentum
         self.max_iterations = max_iterations
@@ -51,6 +54,10 @@ class TwoLayerPerceptron:
         self.prev_delta_W_ = 0
         self.prev_delta_V_ = 0
 
+    def _pad(self, X: np.array) -> np.array:
+        return np.pad(X, pad_width=((0, 1), (0, 0)),
+                      mode='constant', constant_values=1)
+
     def _transfer_function(self, x: np.array) -> np.array:
         return 2/(1 + np.exp(-x)) - 1
 
@@ -59,8 +66,7 @@ class TwoLayerPerceptron:
 
     def _forward_pass(self, X: np.array, W: np.array, V: np.array) -> Tuple[np.array]:
         H = self._transfer_function(W @ X)
-        H = np.pad(H, pad_width=((0, 1), (0, 0)),
-                   mode='constant', constant_values=1)
+        H = self._pad(H)
         O = self._transfer_function(V @ H)
         return H, O
 
@@ -113,22 +119,32 @@ class TwoLayerPerceptron:
                                           1].transpose(), data_train[:, -1]
             X_val, y_val = data_val[:, :-1].transpose(), data_val[:, -1]
 
-            X_val = np.pad(X_val, pad_width=((0, 1), (0, 0)),
-                           mode='constant', constant_values=1)
+            X_val = self._pad(X_val)
         else:
             X_train = X.transpose()
             y_train = y
 
-        X_train = np.pad(X_train, pad_width=((0, 1), (0, 0)),
-                         mode='constant', constant_values=1)
+        X_train = self._pad(X_train)
         W = np.random.normal(size=(self.hidden_layer_size, X_train.shape[0]))
         V = np.random.normal(
             size=(self.n_outputs_, self.hidden_layer_size + 1))
 
         for epoch in range(self.max_iterations):
-            H, O = self._forward_pass(X_train, W, V)
-            delta_H, delta_O = self._backward_pass(X_train, y_train, H, O, V)
-            W, V = self._weight_update(X_train, W, V, H, delta_H, delta_O)
+            if self.mode == 'batch':
+                H, O = self._forward_pass(X_train, W, V)
+                delta_H, delta_O = self._backward_pass(
+                    X_train, y_train, H, O, V)
+                W, V = self._weight_update(X_train, W, V, H, delta_H, delta_O)
+            elif self.mode == 'online':
+                for index in range(X_train.shape[1]):
+                    X_curr = X_train[:, index].reshape((-1, 1))
+                    y_curr = y_train[index].reshape((-1, 1))
+
+                    H, O = self._forward_pass(X_curr, W, V)
+                    delta_H, delta_O = self._backward_pass(
+                        X_curr, y_curr, H, O, V)
+                    W, V = self._weight_update(
+                        X_curr, W, V, H, delta_H, delta_O)
 
             _, pred = self._forward_pass(X_train, W, V)
             pred = self._get_class_from_prediction(pred[0])
@@ -150,8 +166,7 @@ class TwoLayerPerceptron:
         self.V_ = V.copy()
 
     def predict(self, X: np.array, y: np.array) -> np.array:
-        X = np.pad(X.transpose(), pad_width=((0, 1), (0, 0)),
-                   mode='constant', constant_values=1)
+        X = self._pad(X.transpose())
         W = np.hstack((self.coefs_[0], self.intercepts_[
             0].reshape([-1, 1])))
         V = np.hstack((self.coefs_[1], self.intercepts_[
