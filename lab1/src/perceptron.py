@@ -99,8 +99,8 @@ class Perceptron:
 
             raw_prediction = self.weights @ X
             prediction = np.where(raw_prediction > 0, 1, -1)
-            self.error_per_epoch['accuracy'] += [accuracy_score(y.flatten(), prediction.flatten())]
-            self.error_per_epoch['mse'] += [mean_squared_error(y, raw_prediction)]
+            self.error_per_epoch['accuracy'].append(accuracy_score(y.flatten(), prediction.flatten()))
+            self.error_per_epoch['mse'].append(mean_squared_error(y, raw_prediction))
 
     @property
     def intercept_(self):
