@@ -13,8 +13,8 @@ class TwoLayerPerceptron:
 
     classes_: np.array
     n_outputs_: int
-    coefs_: list
-    intercepts_: list
+    W_ = np.array
+    V_ = np.array
     prev_delta_W_: float
     prev_delta_V_: float
     loss_curve_: np.array
@@ -79,7 +79,7 @@ class TwoLayerPerceptron:
     def _mean_square_error(self, pred, y) -> float:
         return np.mean(np.square(y - pred))
 
-    def _missclassification_ratio(self, pred, y) -> float:
+    def _misclassification_ratio(self, pred, y) -> float:
         return np.sum(pred != y)/len(y)
 
     def fit(self, X: np.array, y: np.array) -> None:
@@ -130,8 +130,8 @@ class TwoLayerPerceptron:
                 self.val_loss_curve_.append(self._mean_square_error(
                     self._get_class_from_prediction(pred_val[0]), y_val))
 
-        self.coefs_ = list([W[:, :-1], V[:, :-1]])
-        self.intercepts_ = list([W[:, -1], V[:, -1]])
+        self.W_ = W.copy()
+        self.V_ = V.copy()
 
     def predict(self, X: np.array, y: np.array) -> np.array:
         X = np.pad(X.transpose(), pad_width=((0, 1), (0, 0)),
@@ -149,3 +149,11 @@ class TwoLayerPerceptron:
 
     def get_decision_boundary(self) -> np.array:
         return None
+
+    @property
+    def intercepts_(self):
+        return list([self.W_[:, -1], self.V_[:, -1]])
+
+    @property
+    def coefs_(self):
+        return list([self.W_[:, :-1], self.V_[:, :-1]])
