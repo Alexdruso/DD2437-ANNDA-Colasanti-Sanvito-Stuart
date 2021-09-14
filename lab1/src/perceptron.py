@@ -111,6 +111,9 @@ class Perceptron:
         return self.weights.flatten()[1:] if self.fit_intercept else self.weights
 
     def predict(self, X) -> np.array:
-        result = self.coef_ @ X.T + self.intercept_
+        result = self.decision_function(X)
 
         return np.where(result > 0, 1, -1)
+
+    def decision_function(self, X) -> np.array:
+        return self.coef_ @ X.T + self.intercept_
