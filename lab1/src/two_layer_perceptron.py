@@ -3,7 +3,6 @@ from typing import Tuple
 
 
 class TwoLayerPerceptron:
-    mode: str
     learning_rate: float
     momentum: float
     max_iterations: int
@@ -22,7 +21,6 @@ class TwoLayerPerceptron:
 
     def __init__(
             self,
-            mode: str = 'batch',
             learning_rate: float = 1e-3,
             momentum: float = 0.9,
             max_iterations: int = 100,
@@ -30,7 +28,6 @@ class TwoLayerPerceptron:
             hidden_layer_size: int = None,
             validation_fraction: float = 0.2,
     ):
-        self.mode = mode
         self.learning_rate = learning_rate
         self.momentum = momentum
         self.max_iterations = max_iterations
