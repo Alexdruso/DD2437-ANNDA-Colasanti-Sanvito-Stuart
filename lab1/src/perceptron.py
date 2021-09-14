@@ -44,8 +44,8 @@ class Perceptron:
     classes: Tuple
     weights: np.array
     error_per_epoch: dict
-    loc: int
-    scale: int
+    weight_init_loc: int
+    weight_init_scale: int
 
     def __init__(
             self,
@@ -55,8 +55,8 @@ class Perceptron:
             max_iterations: int = 100,
             tolerance: float = None,
             warm_start: bool = False,
-            loc: int = 0,
-            scale: int = 1
+            weight_init_loc: int = 0,
+            weight_init_scale: int = 1
     ):
         self.fit_intercept = fit_intercept
         self.learning_rule = learning_rule
@@ -68,8 +68,8 @@ class Perceptron:
             'accuracy': [],
             'mse': []
         }
-        self.loc = loc
-        self.scale = scale
+        self.weight_init_loc = weight_init_loc
+        self.weight_init_scale = weight_init_scale
 
     def fit(self, X, y) -> None:
         if X is pd.DataFrame: X = X.to_numpy()
@@ -90,7 +90,7 @@ class Perceptron:
         y = y.T
 
         self.weights = self.weights if self.warm_start \
-            else np.random.normal(size=(1, X.shape[0]), loc=self.loc, scale=self.scale)
+            else np.random.normal(size=(1, X.shape[0]), loc=self.weight_init_loc, scale=self.weight_init_scale)
 
         learning_rule = learning_rules[self.learning_rule]
 
