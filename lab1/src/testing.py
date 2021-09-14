@@ -6,7 +6,6 @@ X = data.iloc[:, :-1].to_numpy()
 y = data.iloc[:, -1].to_numpy()
 
 p = TwoLayerPerceptron(
-    mode='batch',
     learning_rate=1e-3,
     momentum=0.9,
     max_iterations=300,
@@ -14,6 +13,7 @@ p = TwoLayerPerceptron(
     hidden_layer_size=10,
     validation_fraction=0.2,
 )
+
 p.fit(X, y)
 pred = p.predict(X, y)
 print('Mean Square Error: {}'.format(p.loss_))

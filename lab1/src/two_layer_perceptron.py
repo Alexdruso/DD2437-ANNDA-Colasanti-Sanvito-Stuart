@@ -16,8 +16,8 @@ class TwoLayerPerceptron:
     V_ = np.array
     prev_delta_W_: float
     prev_delta_V_: float
-    loss_curve_: np.array
-    val_loss_curve_: np.array
+    error_per_epoch: dict
+    error_per_epoch_val: dict
 
     def __init__(
             self,
@@ -28,12 +28,28 @@ class TwoLayerPerceptron:
             hidden_layer_size: int = None,
             validation_fraction: float = 0.2,
     ):
+        self._reset()
+
         self.learning_rate = learning_rate
         self.momentum = momentum
         self.max_iterations = max_iterations
         self.tolerance = tolerance
         self.hidden_layer_size = hidden_layer_size
         self.validation_fraction = validation_fraction
+
+    def _reset(self) -> None:
+        self.error_per_epoch = {
+            'accuracy': [],
+            'mse': []
+        }
+
+        self.error_per_epoch_val = {
+            'accuracy': [],
+            'mse': []
+        }
+
+        self.prev_delta_W_ = 0
+        self.prev_delta_V_ = 0
 
     def _transfer_function(self, x: np.array) -> np.array:
         return 2/(1 + np.exp(-x)) - 1
@@ -84,8 +100,7 @@ class TwoLayerPerceptron:
         n_classes = len(self.classes_)
         self.n_outputs_ = 1 if n_classes == 2 else n_classes
 
-        self.prev_delta_W_ = 0
-        self.prev_delta_V_ = 0
+        self._reset()
 
         if self.validation_fraction != 0:
             data = np.hstack((X, y.reshape((-1, 1))))
@@ -110,8 +125,6 @@ class TwoLayerPerceptron:
         V = np.random.normal(
             size=(self.n_outputs_, self.hidden_layer_size + 1))
 
-        self.loss_curve_ = []
-        self.val_loss_curve_ = []
         for epoch in range(self.max_iterations):
             H, O = self._forward_pass(X_train, W, V)
             delta_H, delta_O = self._backward_pass(X_train, y_train, H, O, V)
@@ -119,13 +132,19 @@ class TwoLayerPerceptron:
 
             _, pred = self._forward_pass(X_train, W, V)
             pred = self._get_class_from_prediction(pred[0])
-            self.loss_curve_.append(self._mean_square_error(
+
+            self.error_per_epoch['mse'].append(self._mean_square_error(
+                pred, y_train))
+            self.error_per_epoch['accuracy'].append(self._misclassification_ratio(
                 pred, y_train))
 
             if self.validation_fraction != 0:
                 _, pred_val = self._forward_pass(X_val, W, V)
-                self.val_loss_curve_.append(self._mean_square_error(
-                    self._get_class_from_prediction(pred_val[0]), y_val))
+                pred_val = self._get_class_from_prediction(pred_val)
+                self.error_per_epoch_val['mse'].append(self._mean_square_error(
+                    pred_val, y_val))
+                self.error_per_epoch_val['accuracy'].append(self._misclassification_ratio(
+                    pred_val, y_val))
 
         self.W_ = W.copy()
         self.V_ = V.copy()
