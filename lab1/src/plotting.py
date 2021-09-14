@@ -22,10 +22,10 @@ def plot_decision_boundary(
     plt.scatter(negative[:, 0], negative[:, 1], label='Negative', marker='x', color='red')
 
     if positive_new is not None:
-        plt.scatter(positive_new[:, 0], positive_new[:, 1], label='Positive', color='blue', alpha=0.3)
+        plt.scatter(positive_new[:, 0], positive_new[:, 1], label='Unseen positive', color='blue', alpha=0.3)
 
     if negative_new is not None:
-        plt.scatter(negative_new[:, 0], negative_new[:, 1], label='Negative', marker='x', color='red', alpha=0.3)
+        plt.scatter(negative_new[:, 0], negative_new[:, 1], label='Unseen negative', marker='x', color='red', alpha=0.3)
 
     # Plot the models' decision boundaries (if any)
 
