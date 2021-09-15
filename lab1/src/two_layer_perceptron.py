@@ -190,7 +190,16 @@ class TwoLayerPerceptron:
 
         _, pred_proba = self._forward_pass(X, W, V)
         pred = self._get_class_from_prediction(pred_proba)
-        self.loss_ = self._mean_square_error(pred, y)
+
+        if self.is_classification_task:
+            self.loss_ = {
+                'missclassification_error': self._misclassification_ratio(pred, y)
+                'mse': self._mean_square_error(pred, y)
+            }
+        else:
+            self.loss_ = {
+                'mse': self._mean_square_error(pred, y)
+            }
 
         return pred
 
