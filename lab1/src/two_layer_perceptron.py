@@ -20,6 +20,7 @@ class TwoLayerPerceptron:
     prev_delta_V_: float
     error_per_epoch: dict
     error_per_epoch_val: dict
+    loss_: dict
 
     def __init__(
         self,
@@ -53,6 +54,11 @@ class TwoLayerPerceptron:
                 'missclassification_error': [],
                 'mse': []
             }
+
+            self.loss_ = {
+                'missclassification_error': None,
+                'mse': None
+            }
         else:
             self.error_per_epoch = {
                 'mse': []
@@ -60,6 +66,10 @@ class TwoLayerPerceptron:
 
             self.error_per_epoch_val = {
                 'mse': []
+            }
+
+            self.loss_ = {
+                'mse': None
             }
 
         self.prev_delta_W_ = 0
@@ -193,7 +203,7 @@ class TwoLayerPerceptron:
 
         if self.is_classification_task:
             self.loss_ = {
-                'missclassification_error': self._misclassification_ratio(pred, y)
+                'missclassification_error': self._misclassification_ratio(pred, y),
                 'mse': self._mean_square_error(pred, y)
             }
         else:
