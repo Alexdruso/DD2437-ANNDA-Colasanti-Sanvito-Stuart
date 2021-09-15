@@ -133,7 +133,7 @@ class TwoLayerPerceptron:
     def _misclassification_ratio(self, pred, y) -> float:
         return np.sum(pred != y)/len(y)
 
-    def fit(self, X: np.array, y: np.array) -> None:
+    def fit(self, X: np.array, y: np.array, X_val: np.array = None, y_val: np.array = None) -> None:
         if self.is_classification_task:
             self.classes_ = np.unique(y)
             n_classes = len(self.classes_)
@@ -143,6 +143,8 @@ class TwoLayerPerceptron:
 
         self._reset()
 
+        X_train = X
+        y_train = y
         if self.validation_fraction != 0:
             data = np.hstack((X, y.reshape((-1, 1))))
 
@@ -151,19 +153,27 @@ class TwoLayerPerceptron:
             data_train, data_val = data[index:, :], data[:index, :]
 
             X_train, y_train = data_train[:, :-
-                                          1].transpose(), data_train[:, -1]
-            X_val, y_val = data_val[:, :-1].transpose(), data_val[:, -1]
+                                          1], data_train[:, -1]
+            X_val, y_val = data_val[:, :-1], data_val[:, -1]
 
+        if X_val is not None:
+            X_val = X_val.transpose()
             X_val = self._pad(X_val)
-        else:
-            X_train = X.transpose()
-            y_train = y
-
+        X_train = X_train.transpose()
         X_train = self._pad(X_train)
+
         W = np.random.normal(size=(self.hidden_layer_size, X_train.shape[0]))
         V = np.random.normal(
             size=(self.n_outputs_, self.hidden_layer_size + 1))
 
+        # if self.validation_fraction != 0 or (X_val is not None and y_val is not None):
+        #     print('X_val ', X_val.shape)
+        #     print('y_val ', y_val.shape)
+
+        # print('X_train ', X_train.shape)
+        # print('y_train ', y_train.shape)
+        print('W ', W.shape)
+        print('V ', V.shape)
         for epoch in range(self.max_iterations):
             if self.mode == 'batch':
                 H, O = self._forward_pass(X_train, W, V)
@@ -184,7 +194,7 @@ class TwoLayerPerceptron:
             self._evaluate_performance(
                 X_train, y_train, W, V, self.error_per_epoch)
 
-            if self.validation_fraction != 0:
+            if self.validation_fraction != 0 or (X_val is not None and y_val is not None):
                 self._evaluate_performance(
                     X_val, y_val, W, V, self.error_per_epoch_val)
 
