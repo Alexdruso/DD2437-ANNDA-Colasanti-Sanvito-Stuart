@@ -26,10 +26,10 @@ class TwoLayerPerceptron:
         mode: str = 'batch',
         learning_rate: float = 1e-3,
         momentum: float = 0.9,
-        max_iterations: int = 100,
-        tolerance: float = None,
-        hidden_layer_size: int = None,
-        validation_fraction: float = 0.2,
+        max_iterations: int = 200,
+        tolerance: float = 0,
+        hidden_layer_size: int = 1,
+        validation_fraction: float = 0,
         is_classification_task: bool = True
     ):
         self.mode = mode
