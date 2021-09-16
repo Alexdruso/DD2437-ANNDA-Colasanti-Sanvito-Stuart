@@ -41,6 +41,7 @@ class TwoLayerPerceptron:
         self.hidden_layer_size = hidden_layer_size
         self.validation_fraction = validation_fraction
         self.is_classification_task = is_classification_task
+
         self._reset()
 
     def _reset(self) -> None:
@@ -114,12 +115,13 @@ class TwoLayerPerceptron:
 
     def _evaluate_performance(self, X, y, W, V, error) -> None:
         _, pred = self._forward_pass(X, W, V)
+        pred = pred.flatten()
 
         error['mse'].append(self._mean_square_error(
             pred, y))
 
         if self.is_classification_task:
-            pred_class = self._get_class_from_prediction(pred[0])
+            pred_class = self._get_class_from_prediction(pred)
             error['missclassification_error'].append(self._misclassification_ratio(
                 pred_class, y))
 
@@ -208,19 +210,16 @@ class TwoLayerPerceptron:
         V = np.hstack((self.coefs_[1], self.intercepts_[
             1].reshape([-1, 1])))
 
-        _, pred_proba = self._forward_pass(X, W, V)
-        pred = self._get_class_from_prediction(pred_proba)
+        _, pred = self._forward_pass(X, W, V)
+        pred = pred.flatten()
 
         if not y is None:
+            self.loss_['mse'] = self._mean_square_error(pred, y)
+
             if self.is_classification_task:
-                self.loss_ = {
-                    'missclassification_error': self._misclassification_ratio(pred, y),
-                    'mse': self._mean_square_error(pred, y)
-                }
-            else:
-                self.loss_ = {
-                    'mse': self._mean_square_error(pred, y)
-                }
+                pred_class = self._get_class_from_prediction(pred)
+                self.loss_['missclassification_error'] = self._misclassification_ratio(
+                    pred_class, y)
 
         return pred
 
