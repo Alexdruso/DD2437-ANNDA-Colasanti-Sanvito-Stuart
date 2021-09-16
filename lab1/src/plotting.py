@@ -130,3 +130,52 @@ def plot_decision_boundary_tlp(
         plt.savefig(path)
 
     plt.show()
+
+
+def plot_function_approximation(
+        X_train: np.array,
+        y_train: np.array,
+        X_val: np.array,
+        y_val: np.array,
+        model,
+        path: str = None
+) -> None:
+
+    fig = plt.figure(figsize=(12, 7))
+    ax = plt.axes(projection='3d')
+
+    x1_min, x1_max = min(X_train[:, 0].min(), X_val[:, 0].min(
+    )) - 1, max(X_train[:, 0].max(), X_val[:, 0].max()) + 1
+    x2_min, x2_max = min(X_train[:, 1].min(), X_val[:, 1].min(
+    )) - 1, max(X_train[:, 1].max(), X_val[:, 1].max()) + 1
+    h = 0.02  # step size
+    x1_mesh, x2_mesh = np.meshgrid(np.arange(x1_min, x1_max, h),
+                                   np.arange(x2_min, x2_max, h))
+    X_mesh = np.c_[x1_mesh.ravel(), x2_mesh.ravel()]
+
+    y_pred = model.predict(X_mesh)
+    y_pred = y_pred.reshape(x1_mesh.shape)
+
+    # Set colormap
+    cmap = cm.viridis
+    my_cmap = cmap(np.arange(cmap.N))
+    my_cmap[:, -1] = np.linspace(0.3, 0.3, cmap.N)
+    my_cmap = ListedColormap(my_cmap)
+
+    ax.plot_surface(x1_mesh, x2_mesh, y_pred, rstride=1, cstride=1,
+                    cmap=my_cmap, edgecolor='none')
+
+    ax.scatter(X_train[:, 0], X_train[:, 1], y_train,
+               label='Training', color='blue')
+    ax.scatter(X_val[:, 0], X_val[:, 1], y_val,
+               label='Validation', marker='x', color='red')
+
+    plt.xlabel('x1')
+    plt.ylabel('x2')
+    plt.grid(False)
+    plt.legend()
+
+    if path is not None:
+        plt.savefig(path)
+
+    plt.show()
