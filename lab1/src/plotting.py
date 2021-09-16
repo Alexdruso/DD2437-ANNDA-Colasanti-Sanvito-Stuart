@@ -3,7 +3,6 @@ import matplotlib.pyplot as plt
 from matplotlib.colors import ListedColormap
 import matplotlib.cm as cm
 from typing import List
-from two_layer_perceptron import TwoLayerPerceptron
 
 
 def plot_decision_boundary(
@@ -91,8 +90,7 @@ def plot_learning_curve(
 def plot_decision_boundary_tlp(
         X: np.array,
         y: np.array,
-        model: TwoLayerPerceptron,
-        names: List = None,
+        model,
         path: str = None
 ) -> None:
 
