@@ -32,7 +32,7 @@ def plot_2d_function(
         model = models[index]
         name = names[index]
 
-        plt.plot(x, model.predict(x), label=name)
+        plt.plot(dfs[0][x], model.predict(dfs[0][[x]].to_numpy()), label=name)
 
     plt.xlabel(x)
     plt.ylabel(y)
