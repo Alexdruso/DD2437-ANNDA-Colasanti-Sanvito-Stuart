@@ -49,7 +49,6 @@ def _fit_least_squares(
         max_iterations: int,
         error_per_epoch: dict
 ) -> np.array:
-
     weights = np.linalg.inv(X @ X.T) @ X @ y.T
     weights = weights.T
 
@@ -65,6 +64,21 @@ def _map_to_rbf(
         rbf_scale: float
 ):
     return RBF(length_scale=rbf_scale).__call__(X=X, Y=rbf_locations)
+
+
+def _competitive_learning(X: np.array, learning_rate: float, max_iterations: int, nodes: int) -> np.array:
+    rbf_locations = np.random.normal(size=(nodes, X.shape[1]))
+
+    for _ in range(max_iterations):
+        for x in X:
+            diff = (rbf_locations - x)
+            distances = diff @ diff.T
+            winner_index = np.argmax(np.diag(distances))
+
+            rbf_locations[winner_index] = rbf_locations[winner_index] \
+                                          + learning_rate * (x - rbf_locations[winner_index])
+
+    return rbf_locations
 
 
 learning_rules = {
