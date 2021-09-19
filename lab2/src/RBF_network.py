@@ -50,7 +50,8 @@ def _fit_least_squares(
         error_per_epoch: dict
 ) -> np.array:
 
-    weights = np.linalg.inv(X.T @ X) @ X.T @ y
+    weights = np.linalg.inv(X @ X.T) @ X @ y.T
+    weights = weights.T
 
     raw_prediction = weights @ X
     error_per_epoch['mse'] = [mean_squared_error(y, raw_prediction) for _ in range(max_iterations)]
