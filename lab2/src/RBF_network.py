@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 from sklearn.metrics import mean_squared_error, accuracy_score
 from sklearn.gaussian_process.kernels import RBF
+from sklearn.base import BaseEstimator
 
 
 def _fit_delta_online(
@@ -88,7 +89,7 @@ learning_rules = {
 }
 
 
-class RBFNetwork:
+class RBFNetwork(BaseEstimator):
     coef_: np.array
     fit_intercept: bool
     learning_rule: str
