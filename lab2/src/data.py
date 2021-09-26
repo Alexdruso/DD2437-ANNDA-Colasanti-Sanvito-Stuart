@@ -14,6 +14,7 @@ def generate_periodic_function(
         start: float = 0,
         stop: float = 2 * np.pi,
         step: float = 0.1,
+        noise: bool = False,
         reset_index: bool = True
 ) -> pd.DataFrame:
     x = np.arange(start=start, stop=stop, step=step)
@@ -24,7 +25,7 @@ def generate_periodic_function(
     df = pd.DataFrame(
                 {
                     'x': x,
-                    'y': y
+                    'y': y + np.random.normal(0, 0.1, len(y)) if noise else y
                 }
             )
 
