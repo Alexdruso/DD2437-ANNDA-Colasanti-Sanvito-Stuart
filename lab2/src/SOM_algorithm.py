@@ -98,6 +98,6 @@ class SOM(BaseEstimator):
             sorted_list = [name for _, name in sorted(
                 zip(winners, names), key=lambda pair: pair[0])]
 
-            return sorted_list
+            return np.array(sorted_list)
         else:
-            return winners
+            return np.array(winners)
