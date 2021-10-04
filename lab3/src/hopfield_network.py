@@ -8,16 +8,16 @@ def _sign(X: np.array) -> np.array:
     return np.where(X > 0, 1, -1)
 
 
-def _predict_batch(weights: np.array, X: np.array, bias: float, sparse: bool) -> np.array:
-    return 0.5 + 0.5 * _sign(X @ weights - bias) if sparse else _sign(X @ weights)
+def _predict_batch(weights: np.array, X: np.array, bias: float, sparsity: bool) -> np.array:
+    return 0.5 + 0.5 * _sign(X @ weights - bias) if sparsity > 0.0 else _sign(X @ weights)
 
 
-def _predict_sequential(weights: np.array, X: np.array, bias: float, sparse: bool) -> np.array:
+def _predict_sequential(weights: np.array, X: np.array, bias: float, sparsity: bool) -> np.array:
     features_number = len(X)
     prediction = X.copy()
     for feature in range(0, features_number):
         # N X 1 = N X M @ M X 1
-        prediction[:, feature] = _sign(prediction @ weights[:, feature] - bias) if sparse \
+        prediction[:, feature] = _sign(prediction @ weights[:, feature] - bias) if sparsity > 0.0 \
             else _sign(prediction @ weights[:, feature])
     return prediction
 
@@ -37,7 +37,6 @@ class HopfieldNetwork(BaseEstimator):
     weights: np.array
     max_iterations: int
     bias: float
-    sparse: bool
     zero_diagonal: bool
     random_weights: bool
     symmetric_weights: bool
@@ -86,7 +85,7 @@ class HopfieldNetwork(BaseEstimator):
         prediction_method = prediction_methods[self.prediction_method]
 
         for _ in range(self.max_iterations):
-            prediction = prediction_method(self.weights, prediction, self.bias, self.sparse)
+            prediction = prediction_method(self.weights, prediction, self.bias, self.sparsity)
             self.energy_per_iteration.append(_get_energy(self.weights, prediction))
 
         return prediction
