@@ -17,7 +17,7 @@ def _predict_sequential(weights: np.array, X: np.array, bias: float, sparse: boo
     prediction = X.copy()
     for feature in range(0, features_number):
         # N X 1 = N X M @ M X 1
-        prediction[:, feature] = _sign(prediction @ weights[:, feature]) - bias if sparse \
+        prediction[:, feature] = _sign(prediction @ weights[:, feature] - bias) if sparse \
             else _sign(prediction @ weights[:, feature])
     return prediction
 
