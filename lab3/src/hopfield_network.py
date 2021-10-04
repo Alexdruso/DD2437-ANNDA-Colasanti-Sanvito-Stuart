@@ -13,11 +13,12 @@ def _predict_batch(weights: np.array, X: np.array, bias: float, sparse: bool) ->
 
 
 def _predict_sequential(weights: np.array, X: np.array, bias: float, sparse: bool) -> np.array:
-    patterns_number = len(X)
+    features_number = len(X)
     prediction = X.copy()
-    for pattern in range(0, patterns_number):
-        prediction[pattern, :] = _sign(prediction[pattern, :] @ weights) - bias if sparse \
-            else _sign(prediction[pattern, :] @ weights)
+    for feature in range(0, features_number):
+        # N X 1 = N X M @ M X 1
+        prediction[:, feature] = _sign(prediction @ weights[:, feature]) - bias if sparse \
+            else _sign(prediction @ weights[:, feature])
     return prediction
 
 
