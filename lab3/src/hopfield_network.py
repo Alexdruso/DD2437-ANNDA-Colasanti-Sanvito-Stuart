@@ -1,3 +1,4 @@
+import random
 from typing import List
 
 import numpy as np
@@ -13,9 +14,9 @@ def _predict_batch(weights: np.array, X: np.array, bias: float, sparsity: bool) 
 
 
 def _predict_sequential(weights: np.array, X: np.array, bias: float, sparsity: bool) -> np.array:
-    features_number = len(X)
+    features_number = X.shape[1]
     prediction = X.copy()
-    for feature in range(0, features_number):
+    for feature in random.sample(range(0, features_number), features_number):
         # N X 1 = N X M @ M X 1
         prediction[:, feature] = _sign(prediction @ weights[:, feature] - bias) if sparsity > 0.0 \
             else _sign(prediction @ weights[:, feature])
