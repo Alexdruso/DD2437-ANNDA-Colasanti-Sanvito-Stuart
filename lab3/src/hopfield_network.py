@@ -82,14 +82,17 @@ class HopfieldNetwork(BaseEstimator):
 
     def predict(self, X: np.array) -> np.array:
         prediction = X
+        self.energy_per_iteration = []
 
         prediction_method = prediction_methods[self.prediction_method]
 
         for _ in range(self.max_iterations):
-            prediction = prediction_method(self.weights, prediction, self.bias, self.sparsity)
-            self.energy_per_iteration.append(_get_energy(self.weights, prediction))
+            prediction = prediction_method(
+                self.weights, prediction, self.bias, self.sparsity)
+            self.energy_per_iteration.append(
+                _get_energy(self.weights, prediction))
 
         return prediction
-    
+
     def getEnergy(self) -> List:
         return self.energy_per_iteration
