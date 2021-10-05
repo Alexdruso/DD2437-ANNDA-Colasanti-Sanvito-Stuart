@@ -44,6 +44,7 @@ class HopfieldNetwork(BaseEstimator):
     sparsity: float
     prediction_method: str
     energy_per_iteration: List
+    self_connections: bool
 
     def __init__(
             self,
@@ -53,7 +54,8 @@ class HopfieldNetwork(BaseEstimator):
             random_weights: bool = False,
             symmetric_weights: bool = False,
             sparsity: float = 0.0,
-            prediction_method: str = "batch"
+            prediction_method: str = "batch",
+            self_connections: bool = True,
     ):
         self.max_iterations = max_iterations
         self.bias = bias
@@ -63,6 +65,7 @@ class HopfieldNetwork(BaseEstimator):
         self.sparsity = sparsity
         self.prediction_method = prediction_method
         self.energy_per_iteration = []
+        self.self_connections = self_connections
 
     def fit(self, X: np.array, y: np.array = None) -> None:
         # X should be shaped like (number of patterns, number of features)
@@ -77,6 +80,9 @@ class HopfieldNetwork(BaseEstimator):
 
         if self.symmetric_weights:
             weights = 0.5 * (weights + weights.T)
+
+        if not self.self_connections:
+            np.fill_diagonal(weights, 0)
 
         self.weights = weights / features_number
 
