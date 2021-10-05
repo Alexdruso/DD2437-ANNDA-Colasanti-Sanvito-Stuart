@@ -90,3 +90,6 @@ class HopfieldNetwork(BaseEstimator):
             self.energy_per_iteration.append(_get_energy(self.weights, prediction))
 
         return prediction
+    
+    def getEnergy(self) -> List:
+        return self.energy_per_iteration
