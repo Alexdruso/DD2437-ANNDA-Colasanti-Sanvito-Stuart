@@ -64,7 +64,7 @@ class HopfieldNetwork(BaseEstimator):
         self.prediction_method = prediction_method
         self.energy_per_iteration = []
 
-    def fit(self, X: np.array, y: np.array) -> None:
+    def fit(self, X: np.array, y: np.array = None) -> None:
         # X should be shaped like (number of patterns, number of features)
         X = np.array(X)
         features_number = X.shape[1]
