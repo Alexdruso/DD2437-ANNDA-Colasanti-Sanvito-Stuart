@@ -35,7 +35,7 @@ class RestrictedBoltzmannMachine:
         self.is_top = is_top
 
         if is_top:
-            self.n_labels = 10
+            self.labels_number = 10
 
         self.batch_size = batch_size
 
@@ -168,43 +168,49 @@ class RestrictedBoltzmannMachine:
         return p_h_given_v, h
 
     def get_v_given_h(self, hidden_minibatch):
-
         """Compute probabilities p(v|h) and activations v ~ p(v|h)
-
         Uses undirected weight "weight_vh" and bias "bias_v"
-        
-        Args: 
+        Args:
            hidden_minibatch: shape is (size of mini-batch, size of hidden layer)
-        Returns:        
-           tuple ( p(v|h) , v) 
+        Returns:
+           tuple ( p(v|h) , v)
            both are shaped (size of mini-batch, size of visible layer)
         """
 
         assert self.weight_vh is not None
 
-        n_samples = hidden_minibatch.shape[0]
-
         if self.is_top:
 
-            """
-            Here visible layer has both data and labels. Compute total input for each unit (identical for both cases), \ 
-            and split into two parts, something like support[:, :-self.n_labels] and support[:, -self.n_labels:]. \
-            Then, for both parts, use the appropriate activation function to get probabilities and a sampling method \
-            to get activities. The probabilities as well as activities can then be concatenated back into a normal visible layer.
-            """
+            """Here visible layer has both data and labels. Compute total input for each unit (identical for both 
+            cases), and split into two parts, something like support[:, :-self.n_labels] and support[:, 
+            -self.n_labels:]. Then, for both parts, use the appropriate activation function to get probabilities and 
+            a sampling method to get activities. The probabilities as well as activities can then be concatenated 
+            back into a normal visible layer. """
 
-            # [TODO TASK 4.1] compute probabilities and activations (samples from probabilities) of visible layer (replace the pass below). \
-            # Note that this section can also be postponed until TASK 4.2, since in this task, stand-alone RBMs do not contain labels in visible layer.
+            #  compute probabilities and activations (samples from probabilities) of visible layer (
+            #  replace the pass below). \ Note that this section can also be postponed until TASK 4.2, since in this
+            #  task, stand-alone RBMs do not contain labels in visible layer.
 
-            pass
+            support = np.dot(hidden_minibatch, self.weight_vh.T) + self.bias_v
+            support[support < -75] = -75
+            p_v_given_h, v = np.zeros(support.shape), np.zeros(support.shape)
+
+            # split into two part and apply different activation functions
+            p_v_given_h[:, :-self.labels_number] = sigmoid(support[:, :-self.labels_number])
+            p_v_given_h[:, -self.labels_number:] = softmax(support[:, -self.labels_number:])
+
+            v[:, :-self.labels_number] = sample_binary(p_v_given_h[:, :-self.labels_number])
+            v[:, -self.labels_number:] = sample_categorical(p_v_given_h[:, -self.labels_number:])
 
         else:
+            # compute probabilities and activations (samples from probabilities) of visible layer (
+            #  replace the pass and zeros below)
+            support = np.dot(hidden_minibatch, self.weight_vh.T) + self.bias_v
+            # support[support < -75] = -75
+            p_v_given_h = sigmoid(support)
+            v = sample_binary(p_v_given_h)
 
-            # [TODO TASK 4.1] compute probabilities and activations (samples from probabilities) of visible layer (replace the pass and zeros below)             
-
-            pass
-
-        return np.zeros((n_samples, self.ndim_visible)), np.zeros((n_samples, self.ndim_visible))
+        return p_v_given_h, v
 
     """ rbm as a belief layer : the functions below do not have to be changed until running a deep belief net """
 
