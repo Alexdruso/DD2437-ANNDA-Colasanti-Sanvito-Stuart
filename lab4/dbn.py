@@ -52,8 +52,6 @@ class DeepBeliefNet:
 
         self.print_period = 2000
 
-        return
-
     def recognize(self, true_img, true_lbl):
 
         """Recognize/Classify the data into label categories and calculate the accuracy
