@@ -52,34 +52,41 @@ class DeepBeliefNet:
 
         self.print_period = 2000
 
-    def recognize(self, true_img, true_lbl):
+    def recognize(self, true_images, true_labels):
 
         """Recognize/Classify the data into label categories and calculate the accuracy
 
         Args:
-          true_imgs: visible data shaped (number of samples, size of visible layer)
-          true_lbl: true labels shaped (number of samples, size of label layer). Used only for calculating accuracy, not driving the net
+          true_images: visible data shaped (number of samples, size of visible layer)
+          true_labels: true labels shaped (number of samples, size of label layer). Used only for calculating accuracy, not driving the net
         """
 
-        n_samples = true_img.shape[0]
+        vis = true_images  # visible layer gets the image data
 
-        vis = true_img  # visible layer gets the image data
+        labels = np.ones(true_labels.shape) / 10.  # start the net by telling you know nothing about labels
 
-        lbl = np.ones(true_lbl.shape) / 10.  # start the net by telling you know nothing about labels
-
-        # [TODO TASK 4.2] fix the image data in the visible layer and drive the network bottom to top. In the top
+        # finished
+        # fix the image data in the visible layer and drive the network bottom to top. In the top
         #  RBM, run alternating Gibbs sampling \ and read out the labels (replace pass below and 'predicted_lbl' to
         #  your predicted labels). NOTE : inferring entire train/test set may require too much compute memory (
         #  depends on your system). In that case, divide into mini-batches.
 
+        h_1 = self.rbm_stack["vis--hid"].get_h_given_v_dir(vis)[1]
+        h_2 = self.rbm_stack['hid--pen'].get_h_given_v_dir(h_1)[1]
+        h_2_label = np.concatenate((h_2, labels), axis=1)
         for _ in range(self.n_gibbs_recog):
-            pass
+            out = self.rbm_stack["pen+lbl--top"].get_h_given_v(h_2_label)[1]
+            h_2_label = self.rbm_stack["pen+lbl--top"].get_v_given_h(out)[1]
 
-        predicted_lbl = np.zeros(true_lbl.shape)
+            # fix the image
+            h_2_label[:, :-labels.shape[1]:] = h_2
 
-        print("accuracy = %.2f%%" % (100. * np.mean(np.argmax(predicted_lbl, axis=1) == np.argmax(true_lbl, axis=1))))
+        predicted_lbl = h_2_label[:, -true_labels.shape[1]:]
+        predicted_list = []
+        for p_l in predicted_lbl:
+            predicted_list.append(np.where(p_l == 1)[0])
 
-        return
+        print("accuracy = %.2f%%" % (100. * np.mean(np.argmax(predicted_lbl, axis=1) == np.argmax(true_labels, axis=1))))
 
     def generate(self, true_lbl, name):
 
