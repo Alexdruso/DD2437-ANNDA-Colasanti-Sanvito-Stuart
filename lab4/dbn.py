@@ -2,7 +2,7 @@ from rbm import RestrictedBoltzmannMachine
 from util import *
 
 
-class DeepBeliefNet():
+class DeepBeliefNet:
     ''' 
     For more details : Hinton, Osindero, Teh (2006). A fast learning algorithm for deep belief nets. https://www.cs.toronto.edu/~hinton/absps/fastnc.pdf
 
@@ -69,9 +69,10 @@ class DeepBeliefNet():
 
         lbl = np.ones(true_lbl.shape) / 10.  # start the net by telling you know nothing about labels
 
-        # [TODO TASK 4.2] fix the image data in the visible layer and drive the network bottom to top. In the top RBM, run alternating Gibbs sampling \
-        # and read out the labels (replace pass below and 'predicted_lbl' to your predicted labels).
-        # NOTE : inferring entire train/test set may require too much compute memory (depends on your system). In that case, divide into mini-batches.
+        # [TODO TASK 4.2] fix the image data in the visible layer and drive the network bottom to top. In the top
+        #  RBM, run alternating Gibbs sampling \ and read out the labels (replace pass below and 'predicted_lbl' to
+        #  your predicted labels). NOTE : inferring entire train/test set may require too much compute memory (
+        #  depends on your system). In that case, divide into mini-batches.
 
         for _ in range(self.n_gibbs_recog):
             pass

@@ -1,12 +1,12 @@
 from util import *
 
 
-class RestrictedBoltzmannMachine():
+class RestrictedBoltzmannMachine:
     '''
     For more details : A Practical Guide to Training Restricted Boltzmann Machines https://www.cs.toronto.edu/~hinton/absps/guideTR.pdf
     '''
 
-    def __init__(self, ndim_visible, ndim_hidden, is_bottom=False, image_size=[28, 28], is_top=False, n_labels=10,
+    def __init__(self, ndim_visible, ndim_hidden, is_bottom=False, image_size=None, is_top=False, n_labels=10,
                  batch_size=10):
 
         """
@@ -20,17 +20,21 @@ class RestrictedBoltzmannMachine():
           batch_size: Size of mini-batch.
         """
 
+        if image_size is None:
+            image_size = [28, 28]
         self.ndim_visible = ndim_visible
 
         self.ndim_hidden = ndim_hidden
 
         self.is_bottom = is_bottom
 
-        if is_bottom: self.image_size = image_size
+        if is_bottom:
+            self.image_size = image_size
 
         self.is_top = is_top
 
-        if is_top: self.n_labels = 10
+        if is_top:
+            self.n_labels = 10
 
         self.batch_size = batch_size
 
@@ -83,9 +87,9 @@ class RestrictedBoltzmannMachine():
 
         for it in range(n_iterations):
 
-            # [TODO TASK 4.1] run k=1 alternating Gibbs sampling : v_0 -> h_0 ->  v_1 -> h_1.
-            # you may need to use the inference functions 'get_h_given_v' and 'get_v_given_h'.
-            # note that inference methods returns both probabilities and activations (samples from probablities) and you may have to decide when to use what.
+            # [TODO TASK 4.1] run k=1 alternating Gibbs sampling : v_0 -> h_0 ->  v_1 -> h_1. you may need to use the
+            #  inference functions 'get_h_given_v' and 'get_v_given_h'. note that inference methods returns both
+            #  probabilities and activations (samples from probablities) and you may have to decide when to use what.
 
             # [TODO TASK 4.1] update the parameters using function 'update_params'
 
