@@ -1,5 +1,6 @@
 from util import *
-
+from math import ceil
+import numpy as np
 
 class RestrictedBoltzmannMachine:
     '''
@@ -70,41 +71,57 @@ class RestrictedBoltzmannMachine:
             "ids": np.random.randint(0, self.ndim_hidden, 25)  # pick some random hidden units
         }
 
-        return
-
-    def cd1(self, visible_trainset, n_iterations=10000):
+    def cd1(self, visible_trainset, iterations_number=10000):
 
         """Contrastive Divergence with k=1 full alternating Gibbs sampling
 
         Args:
           visible_trainset: training data for this rbm, shape is (size of training set, size of visible layer)
-          n_iterations: number of iterations of learning (each iteration learns a mini-batch)
+          iterations_number: number of iterations of learning (each iteration learns a mini-batch)
         """
 
         print("learning CD1")
 
-        n_samples = visible_trainset.shape[0]
+        samples_number = visible_trainset.shape[0]
 
-        for it in range(n_iterations):
+        loss_list = []
+        res_list = []
+        errors_per_epoch = []
+        batches_number = ceil(samples_number / self.batch_size)  # no. of mini batch in each iteration
 
-            # [TODO TASK 4.1] run k=1 alternating Gibbs sampling : v_0 -> h_0 ->  v_1 -> h_1. you may need to use the
-            #  inference functions 'get_h_given_v' and 'get_v_given_h'. note that inference methods returns both
-            #  probabilities and activations (samples from probablities) and you may have to decide when to use what.
+        for iteration in range(iterations_number):
+            np.random.shuffle(visible_trainset)
+            for batch in range(batches_number):
 
-            # [TODO TASK 4.1] update the parameters using function 'update_params'
+                #  run k=1 alternating Gibbs sampling : v_0 -> h_0 ->  v_1 -> h_1. you may need to use
+                #  the inference functions 'get_h_given_v' and 'get_v_given_h'. note that inference methods returns
+                #  both probabilities and activations (samples from probablities) and you may have to decide when to
+                #  use what.
 
-            # visualize once in a while when visible layer is input images
+                start_index = batch * self.batch_size
+                end_index = min((batch + 1) * self.batch_size, samples_number)
+                v_0 = visible_trainset[start_index:end_index, :]
+                # v_0 -> h_0
+                p_h_given_v_0, h_0 = self.get_h_given_v(v_0)
+                # h_0 -> v_1
+                p_v_given_h_1, v_1 = self.get_v_given_h(h_0)
+                # v_1 -> h_1
+                # p_h_given_v_0, h_1 = self.get_h_given_v(v_1)
+                p_h_given_v_0, h_1 = self.get_h_given_v(p_v_given_h_1)
 
-            if it % self.rf["period"] == 0 and self.is_bottom:
+                # update the parameters using function 'update_params'
+                self.update_params(v_0, h_0, v_1, h_1)
+
+                # visualize once in a while when visible layer is input images
+
+            if iteration % self.rf["period"] == 0 and self.is_bottom:
                 viz_rf(weights=self.weight_vh[:, self.rf["ids"]].reshape((self.image_size[0], self.image_size[1], -1)),
-                       it=it, grid=self.rf["grid"])
+                       it=iteration, grid=self.rf["grid"])
 
             # print progress
 
-            if it % self.print_period == 0:
-                print("iteration=%7d recon_loss=%4.4f" % (it, np.linalg.norm(visible_trainset - visible_trainset)))
-
-        return
+            if iteration % self.print_period == 0:
+                print("iteration=%7d recon_loss=%4.4f" % (iteration, np.linalg.norm(visible_trainset - visible_trainset)))
 
     def update_params(self, v_0, h_0, v_k, h_k):
 
