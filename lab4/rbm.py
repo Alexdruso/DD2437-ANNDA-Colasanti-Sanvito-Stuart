@@ -2,6 +2,7 @@ from util import *
 from math import ceil
 import numpy as np
 
+
 class RestrictedBoltzmannMachine:
     '''
     For more details : A Practical Guide to Training Restricted Boltzmann Machines https://www.cs.toronto.edu/~hinton/absps/guideTR.pdf
@@ -89,7 +90,6 @@ class RestrictedBoltzmannMachine:
         for iteration in range(iterations_number):
             np.random.shuffle(visible_trainset)
             for batch in range(batches_number):
-
                 #  run k=1 alternating Gibbs sampling : v_0 -> h_0 ->  v_1 -> h_1. you may need to use
                 #  the inference functions 'get_h_given_v' and 'get_v_given_h'. note that inference methods returns
                 #  both probabilities and activations (samples from probablities) and you may have to decide when to
@@ -118,7 +118,8 @@ class RestrictedBoltzmannMachine:
             # print progress
 
             if iteration % self.print_period == 0:
-                print("iteration=%7d recon_loss=%4.4f" % (iteration, np.linalg.norm(visible_trainset - visible_trainset)))
+                print(
+                    "iteration=%7d recon_loss=%4.4f" % (iteration, np.linalg.norm(visible_trainset - visible_trainset)))
 
     def update_params(self, v_0, h_0, v_k, h_k):
 
