@@ -279,26 +279,24 @@ class RestrictedBoltzmannMachine:
 
         return p_v_given_h_dir, s
 
-    def update_generate_params(self, inps, trgs, preds):
+    def update_generate_params(self, inputs, targets, predictions):
 
         """Update generative weight "weight_h_to_v" and bias "bias_v"
         
         Args:
-           inps: activities or probabilities of input unit
-           trgs: activities or probabilities of output unit (target)
-           preds: activities or probabilities of output unit (prediction)
+           inputs: activities or probabilities of input unit
+           targets: activities or probabilities of output unit (target)
+           predictions: activities or probabilities of output unit (prediction)
            all args have shape (size of mini-batch, size of respective layer)
         """
 
-        # [TODO TASK 4.3] find the gradients from the arguments (replace the 0s below) and update the weight and bias parameters.
+        # find the gradients from the arguments (replace the 0s below) and update the weight and bias parameters.
 
-        self.delta_weight_h_to_v += 0
-        self.delta_bias_v += 0
+        self.delta_weight_h_to_v = self.learning_rate * inputs.T @ (targets - predictions)
+        self.delta_bias_v = self.learning_rate * (np.sum(targets - predictions, axis=0))
 
         self.weight_h_to_v += self.delta_weight_h_to_v
         self.bias_v += self.delta_bias_v
-
-        return
 
     def update_recognize_params(self, inps, trgs, preds):
 
