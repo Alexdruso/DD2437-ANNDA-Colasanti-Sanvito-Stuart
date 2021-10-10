@@ -84,9 +84,6 @@ class RestrictedBoltzmannMachine:
 
         samples_number = visible_trainset.shape[0]
 
-        loss_list = []
-        res_list = []
-        errors_per_epoch = []
         batches_number = ceil(samples_number / self.batch_size)  # no. of mini batch in each iteration
 
         for iteration in range(iterations_number):
