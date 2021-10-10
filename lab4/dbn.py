@@ -97,7 +97,7 @@ class DeepBeliefNet:
         records = []
         fig, ax = plt.subplots(1, 1, figsize=(3, 3))
         plt.subplots_adjust(left=0, bottom=0, right=1, top=1, wspace=0, hspace=0)
-        ax.set_xticks([]);
+        ax.set_xticks([])
         ax.set_yticks([])
 
         lbl = true_lbl
