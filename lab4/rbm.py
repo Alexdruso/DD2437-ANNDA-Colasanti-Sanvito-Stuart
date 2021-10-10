@@ -257,30 +257,27 @@ class RestrictedBoltzmannMachine:
 
         assert self.weight_h_to_v is not None
 
-        n_samples = hidden_minibatch.shape[0]
-
         if self.is_top:
 
-            """
-            Here visible layer has both data and labels. Compute total input for each unit (identical for both cases), \ 
-            and split into two parts, something like support[:, :-self.n_labels] and support[:, -self.n_labels:]. \
-            Then, for both parts, use the appropriate activation function to get probabilities and a sampling method \
-            to get activities. The probabilities as well as activities can then be concatenated back into a normal visible layer.
-            """
+            """Here visible layer has both data and labels. Compute total input for each unit (identical for both 
+            cases), and split into two parts, something like support[:, :-self.n_labels] and support[:, 
+            -self.n_labels:]. Then, for both parts, use the appropriate activation function to get probabilities 
+            and a sampling method to get activities. The probabilities as well as activities can then be 
+            concatenated back into a normal visible layer. """
 
-            # [TODO TASK 4.2] Note that even though this function performs same computation as 'get_v_given_h' but with directed connections,
-            # this case should never be executed : when the RBM is a part of a DBN and is at the top, it will have not have directed connections.
-            # Appropriate code here is to raise an error (replace pass below)
-
-            pass
+            # Note that even though this function performs same computation as 'get_v_given_h' but with directed
+            # connections, this case should never be executed : when the RBM is a part of a DBN and is at the
+            # top, it will have not have directed connections. Appropriate code here is to raise an error (
+            # replace pass below)
+            raise NotImplementedError()
 
         else:
 
-            # [TODO TASK 4.2] performs same computaton as the function 'get_v_given_h' but with directed connections (replace the pass and zeros below)             
+            #  (replace the pass and zeros below)
+            p_v_given_h_dir = sigmoid(hidden_minibatch @ self.weight_h_to_v + self.bias_v)
+            s = sample_binary(p_v_given_h_dir)
 
-            pass
-
-        return np.zeros((n_samples, self.ndim_visible)), np.zeros((n_samples, self.ndim_visible))
+        return p_v_given_h_dir, s
 
     def update_generate_params(self, inps, trgs, preds):
 
