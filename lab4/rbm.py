@@ -162,7 +162,7 @@ class RestrictedBoltzmannMachine:
         # compute probabilities and activations (samples from probabilities) of hidden layer
         # (replace the zeros below)
 
-        p_h_given_v = sigmoid(np.dot(visible_minibatch, self.weight_vh) + self.bias_h)
+        p_h_given_v = sigmoid(visible_minibatch @ self.weight_vh + self.bias_h)
         h = sample_binary(p_h_given_v)
 
         return p_h_given_v, h
@@ -191,7 +191,7 @@ class RestrictedBoltzmannMachine:
             #  replace the pass below). \ Note that this section can also be postponed until TASK 4.2, since in this
             #  task, stand-alone RBMs do not contain labels in visible layer.
 
-            support = np.dot(hidden_minibatch, self.weight_vh.T) + self.bias_v
+            support = hidden_minibatch @ self.weight_vh.T + self.bias_v
             support[support < -75] = -75
             p_v_given_h, v = np.zeros(support.shape), np.zeros(support.shape)
 
@@ -205,7 +205,7 @@ class RestrictedBoltzmannMachine:
         else:
             # compute probabilities and activations (samples from probabilities) of visible layer (
             #  replace the pass and zeros below)
-            support = np.dot(hidden_minibatch, self.weight_vh.T) + self.bias_v
+            support = hidden_minibatch @ self.weight_vh.T + self.bias_v
             # support[support < -75] = -75
             p_v_given_h = sigmoid(support)
             v = sample_binary(p_v_given_h)
