@@ -86,7 +86,8 @@ class DeepBeliefNet:
         for p_l in predicted_lbl:
             predicted_list.append(np.where(p_l == 1)[0])
 
-        print("accuracy = %.2f%%" % (100. * np.mean(np.argmax(predicted_lbl, axis=1) == np.argmax(true_labels, axis=1))))
+        print(
+            "accuracy = %.2f%%" % (100. * np.mean(np.argmax(predicted_lbl, axis=1) == np.argmax(true_labels, axis=1))))
 
     def generate(self, true_label, name):
 
@@ -132,8 +133,7 @@ class DeepBeliefNet:
         # plot_images(np.array(records), np.arange(0, 10)[int((np.where(true_lbl == 1))[0])] * np.ones(len((records))))
         return records
 
-
-def train_greedylayerwise(self, vis_trainset, lbl_trainset, n_iterations):
+    def train_greedylayerwise(self, vis_trainset, lbl_trainset, iterations_number):
 
         """
         Greedy layer-wise training by stacking RBMs. This method first tries to load previous saved parameters of the entire RBM stack. 
@@ -143,7 +143,7 @@ def train_greedylayerwise(self, vis_trainset, lbl_trainset, n_iterations):
         Args:
           vis_trainset: visible data shaped (size of training set, size of visible layer)
           lbl_trainset: label data shaped (size of training set, size of label layer)
-          n_iterations: number of iterations of learning (each iteration learns a mini-batch)
+          iterations_number: number of iterations of learning (each iteration learns a mini-batch)
         """
 
         try:
@@ -158,12 +158,13 @@ def train_greedylayerwise(self, vis_trainset, lbl_trainset, n_iterations):
 
         except IOError:
 
-            # [TODO TASK 4.2] use CD-1 to train all RBMs greedily
+            # use CD-1 to train all RBMs greedily
 
             print("training vis--hid")
             """ 
             CD-1 training for vis--hid 
             """
+            self.rbm_stack["vis--hid"].cd1(vis_trainset, iterations_number)
             self.savetofile_rbm(loc="trained_rbm", name="vis--hid")
 
             print("training hid--pen")
@@ -171,6 +172,9 @@ def train_greedylayerwise(self, vis_trainset, lbl_trainset, n_iterations):
             CD-1 training for hid--pen 
             """
             self.rbm_stack["vis--hid"].untwine_weights()
+
+            h_1 = self.rbm_stack["vis--hid"].get_h_given_v_dir(vis_trainset)[1]
+            self.rbm_stack["hid--pen"].cd1(h_1, iterations_number)
             self.savetofile_rbm(loc="trained_rbm", name="hid--pen")
 
             print("training pen+lbl--top")
@@ -178,8 +182,11 @@ def train_greedylayerwise(self, vis_trainset, lbl_trainset, n_iterations):
             CD-1 training for pen+lbl--top 
             """
             self.rbm_stack["hid--pen"].untwine_weights()
-            self.savetofile_rbm(loc="trained_rbm", name="pen+lbl--top")
 
+            h_2 = self.rbm_stack["hid--pen"].get_h_given_v_dir(h_1)[1]
+            h_2_label = np.concatenate((h_2, lbl_trainset), axis=1)
+            self.rbm_stack["pen+lbl--top"].cd1(h_2_label, iterations_number)
+            self.savetofile_rbm(loc="trained_rbm", name="pen+lbl--top")
 
     def train_wakesleep_finetune(self, vis_trainset, lbl_trainset, n_iterations):
 
