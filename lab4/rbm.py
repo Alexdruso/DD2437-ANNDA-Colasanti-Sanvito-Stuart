@@ -134,17 +134,15 @@ class RestrictedBoltzmannMachine:
            all args have shape (size of mini-batch, size of respective layer)
         """
 
-        # [TODO TASK 4.1] get the gradients from the arguments (replace the 0s below) and update the weight and bias parameters
+        # get the gradients from the arguments (replace the 0s below) and update the weight and bias parameters
 
-        self.delta_bias_v += 0
-        self.delta_weight_vh += 0
-        self.delta_bias_h += 0
+        self.delta_bias_v = self.learning_rate * (np.sum(v_0 - v_k, axis=0))
+        self.delta_bias_h = self.learning_rate * (np.sum(h_0 - h_k, axis=0))
+        self.delta_weight_vh = self.learning_rate * ((v_0.T @ h_0) - (v_k.T @ h_k))
 
         self.bias_v += self.delta_bias_v
         self.weight_vh += self.delta_weight_vh
         self.bias_h += self.delta_bias_h
-
-        return
 
     def get_h_given_v(self, visible_minibatch):
 
