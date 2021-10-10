@@ -159,11 +159,13 @@ class RestrictedBoltzmannMachine:
 
         assert self.weight_vh is not None
 
-        n_samples = visible_minibatch.shape[0]
+        # compute probabilities and activations (samples from probabilities) of hidden layer
+        # (replace the zeros below)
 
-        # [TODO TASK 4.1] compute probabilities and activations (samples from probabilities) of hidden layer (replace the zeros below) 
+        p_h_given_v = sigmoid(np.dot(visible_minibatch, self.weight_vh) + self.bias_h)
+        h = sample_binary(p_h_given_v)
 
-        return np.zeros((n_samples, self.ndim_hidden)), np.zeros((n_samples, self.ndim_hidden))
+        return p_h_given_v, h
 
     def get_v_given_h(self, hidden_minibatch):
 
