@@ -88,16 +88,14 @@ class DeepBeliefNet:
 
         print("accuracy = %.2f%%" % (100. * np.mean(np.argmax(predicted_lbl, axis=1) == np.argmax(true_labels, axis=1))))
 
-    def generate(self, true_lbl, name):
+    def generate(self, true_label, name):
 
         """Generate data from labels
 
         Args:
-          true_lbl: true labels shaped (number of samples, size of label layer)
+          true_label: true labels shaped (number of samples, size of label layer)
           name: string used for saving a video of generated visible activations
         """
-
-        n_sample = true_lbl.shape[0]
 
         records = []
         fig, ax = plt.subplots(1, 1, figsize=(3, 3))
@@ -105,22 +103,37 @@ class DeepBeliefNet:
         ax.set_xticks([])
         ax.set_yticks([])
 
-        lbl = true_lbl
+        label = true_label
 
-        # [TODO TASK 4.2] fix the label in the label layer and run alternating Gibbs sampling in the top RBM. From the top RBM, drive the network \ 
-        # top to the bottom visible layer (replace 'vis' from random to your generated visible layer).
+        # fix the label in the label layer and run alternating Gibbs sampling in the top RBM. From
+        #  the top RBM, drive the network \ top to the bottom visible layer (replace 'vis' from random to your
+        #  generated visible layer).
 
+        random_vis = np.random.choice([0, 1], self.sizes['vis']).reshape(-1, self.sizes['vis'])
+        h_1 = self.rbm_stack["vis--hid"].get_h_given_v_dir(random_vis)[1]
+        h_2 = self.rbm_stack["hid--pen"].get_h_given_v_dir(h_1)[1]
+        h_2_label = np.concatenate((h_2, label), axis=1)
+
+        # from top to bottom
         for _ in range(self.n_gibbs_gener):
-            vis = np.random.rand(n_sample, self.sizes["vis"])
+            top = self.rbm_stack["pen+lbl--top"].get_h_given_v(h_2_label)[1]
+            h_2_label = self.rbm_stack["pen+lbl--top"].get_v_given_h(top)[1]
+            # fix the labels
+            h_2_label[:, -label.shape[1]:] = label[:, :]
+            h_2_top_to_bot = h_2_label[:, :-label.shape[1]]
+            h_1_top_to_bot = self.rbm_stack["hid--pen"].get_v_given_h_dir(h_2_top_to_bot)[1]
+
+            vis = self.rbm_stack["vis--hid"].get_v_given_h_dir(h_1_top_to_bot)[1]
 
             records.append([ax.imshow(vis.reshape(self.image_size), cmap="bwr", vmin=0, vmax=1, animated=True,
                                       interpolation=None)])
 
-        anim = stitch_video(fig, records).save("%s.generate%d.mp4" % (name, np.argmax(true_lbl)))
+        stitch_video(fig, records).save("%s.generate%d.mp4" % (name, np.argmax(true_label)))
+        # plot_images(np.array(records), np.arange(0, 10)[int((np.where(true_lbl == 1))[0])] * np.ones(len((records))))
+        return records
 
-        return
 
-    def train_greedylayerwise(self, vis_trainset, lbl_trainset, n_iterations):
+def train_greedylayerwise(self, vis_trainset, lbl_trainset, n_iterations):
 
         """
         Greedy layer-wise training by stacking RBMs. This method first tries to load previous saved parameters of the entire RBM stack. 
@@ -167,7 +180,6 @@ class DeepBeliefNet:
             self.rbm_stack["hid--pen"].untwine_weights()
             self.savetofile_rbm(loc="trained_rbm", name="pen+lbl--top")
 
-        return
 
     def train_wakesleep_finetune(self, vis_trainset, lbl_trainset, n_iterations):
 
