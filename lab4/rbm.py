@@ -298,21 +298,21 @@ class RestrictedBoltzmannMachine:
         self.weight_h_to_v += self.delta_weight_h_to_v
         self.bias_v += self.delta_bias_v
 
-    def update_recognize_params(self, inps, trgs, preds):
+    def update_recognize_params(self, inputs, targets, predictions):
 
         """Update recognition weight "weight_v_to_h" and bias "bias_h"
         
         Args:
-           inps: activities or probabilities of input unit
-           trgs: activities or probabilities of output unit (target)
-           preds: activities or probabilities of output unit (prediction)
+           inputs: activities or probabilities of input unit
+           targets: activities or probabilities of output unit (target)
+           predictions: activities or probabilities of output unit (prediction)
            all args have shape (size of mini-batch, size of respective layer)
         """
 
         # find the gradients from the arguments (replace the 0s below) and update the weight and bias parameters.
 
-        self.delta_weight_v_to_h = self.learning_rate * inps.T @ (trgs - preds)
-        self.delta_bias_h = self.learning_rate * (np.sum(trgs - preds, axis=0))
+        self.delta_weight_v_to_h = self.learning_rate * inputs.T @ (targets - predictions)
+        self.delta_bias_h = self.learning_rate * (np.sum(targets - predictions, axis=0))
 
         self.weight_v_to_h += self.delta_weight_v_to_h
         self.bias_h += self.delta_bias_h
