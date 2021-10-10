@@ -76,11 +76,13 @@ def load_idxfile(filename):
     return data
 
 
-def read_mnist(dim=[28, 28], n_train=60000, n_test=1000):
+def read_mnist(dim=None, n_train=60000, n_test=1000):
     """
     Read mnist train and test data. Images are normalized to be in range [0,1]. Labels are one-hot coded.
     """
 
+    if dim is None:
+        dim = [28, 28]
     train_imgs = load_idxfile("train-images-idx3-ubyte")
     train_imgs = train_imgs / 255.
     train_imgs = train_imgs.reshape(-1, dim[0] * dim[1])
@@ -109,8 +111,8 @@ def viz_rf(weights, it, grid):
     imax = abs(weights).max()
     for x in range(grid[0]):
         for y in range(grid[1]):
-            axs[x, y].set_xticks([]);
-            axs[x, y].set_yticks([]);
+            axs[x, y].set_xticks([])
+            axs[x, y].set_yticks([])
             axs[x, y].imshow(weights[:, :, y + grid[1] * x], cmap="bwr", vmin=-imax, vmax=imax, interpolation=None)
     plt.savefig("rf.iter%06d.png" % it)
     plt.close('all')
