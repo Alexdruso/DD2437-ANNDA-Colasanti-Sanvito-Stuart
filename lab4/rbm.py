@@ -235,11 +235,12 @@ class RestrictedBoltzmannMachine:
 
         assert self.weight_v_to_h is not None
 
-        n_samples = visible_minibatch.shape[0]
+        # perform same computation as the function 'get_h_given_v' but with directed connections (
+        #  replace the zeros below)
+        p_h_given_v_dir = sigmoid(visible_minibatch @ self.weight_v_to_h + self.bias_h)
+        h = sample_binary(p_h_given_v_dir)
 
-        # [TODO TASK 4.2] perform same computation as the function 'get_h_given_v' but with directed connections (replace the zeros below) 
-
-        return np.zeros((n_samples, self.ndim_hidden)), np.zeros((n_samples, self.ndim_hidden))
+        return p_h_given_v_dir, h
 
     def get_v_given_h_dir(self, hidden_minibatch):
 
