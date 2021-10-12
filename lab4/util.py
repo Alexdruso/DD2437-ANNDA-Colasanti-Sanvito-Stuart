@@ -4,12 +4,12 @@ import numpy as np
 
 def sigmoid(support):
     """
-    Sigmoid activation function that finds probabilities to turn ON each unit. 
-        
+    Sigmoid activation function that finds probabilities to turn ON each unit.
+
     Args:
-      support: shape is (size of mini-batch, size of layer)      
+      support: shape is (size of mini-batch, size of layer)
     Returns:
-      on_probabilities: shape is (size of mini-batch, size of layer)      
+      on_probabilities: shape is (size of mini-batch, size of layer)
     """
 
     on_probabilities = 1. / (1. + np.exp(-support))
@@ -19,11 +19,11 @@ def sigmoid(support):
 def softmax(support):
     """
     Softmax activation function that finds probabilities of each category
-        
+
     Args:
-      support: shape is (size of mini-batch, number of categories)      
+      support: shape is (size of mini-batch, number of categories)
     Returns:
-      probabilities: shape is (size of mini-batch, number of categories)      
+      probabilities: shape is (size of mini-batch, number of categories)
     """
 
     expsup = np.exp(support - np.max(support, axis=1)[:, None])
@@ -31,48 +31,53 @@ def softmax(support):
 
 
 def sample_binary(on_probabilities):
-    """ 
+    """
     Sample activations ON=1 (OFF=0) from probabilities sigmoid probabilities
-        
+
     Args:
-      support: shape is (size of mini-batch, size of layer)      
+      support: shape is (size of mini-batch, size of layer)
     Returns:
-      activations: shape is (size of mini-batch, size of layer)      
+      activations: shape is (size of mini-batch, size of layer)
     """
 
-    activations = 1. * (on_probabilities >= np.random.random_sample(size=on_probabilities.shape))
+    activations = 1. * (on_probabilities >=
+                        np.random.random_sample(size=on_probabilities.shape))
     return activations
 
 
 def sample_categorical(probabilities):
     """
     Sample one-hot activations from categorical probabilities
-        
+
     Args:
-      support: shape is (size of mini-batch, number of categories)      
+      support: shape is (size of mini-batch, number of categories)
     Returns:
-      activations: shape is (size of mini-batch, number of categories)      
+      activations: shape is (size of mini-batch, number of categories)
     """
 
     cumsum = np.cumsum(probabilities, axis=1)
     rand = np.random.random_sample(size=probabilities.shape[0])[:, None]
     activations = np.zeros(probabilities.shape)
-    activations[range(probabilities.shape[0]), np.argmax((cumsum >= rand), axis=1)] = 1
+    activations[range(probabilities.shape[0]),
+                np.argmax((cumsum >= rand), axis=1)] = 1
     return activations
 
 
 def load_idxfile(filename):
     """
-    Load idx file format. For more information : http://yann.lecun.com/exdb/mnist/ 
+    Load idx file format. For more information : http://yann.lecun.com/exdb/mnist/
     """
     import struct
+    import os
 
-    with open(filename, 'rb') as _file:
+    with open(os.path.join(os.getcwd(), 'lab4', filename), 'rb') as _file:
         if ord(_file.read(1)) != 0 or ord(_file.read(1)) != 0:
             raise Exception('Invalid idx file: unexpected magic number!')
         dtype, ndim = ord(_file.read(1)), ord(_file.read(1))
-        shape = [struct.unpack(">I", _file.read(4))[0] for _ in range(ndim)]
-        data = np.fromfile(_file, dtype=np.dtype(np.uint8).newbyteorder('>')).reshape(shape)
+        shape = [struct.unpack(">I", _file.read(4))[0]
+                 for _ in range(ndim)]
+        data = np.fromfile(_file, dtype=np.dtype(
+            np.uint8).newbyteorder('>')).reshape(shape)
     return data
 
 
@@ -104,17 +109,19 @@ def read_mnist(dim=None, n_train=60000, n_test=1000):
 
 def viz_rf(weights, it, grid):
     """
-    Visualize receptive fields and save 
+    Visualize receptive fields and save
     """
-    fig, axs = plt.subplots(grid[0], grid[1], figsize=(grid[1], grid[0]))  # ,constrained_layout=True)
+    fig, axs = plt.subplots(grid[0], grid[1], figsize=(
+        grid[1], grid[0]))  # ,constrained_layout=True)
     plt.subplots_adjust(left=0, bottom=0, right=1, top=1, wspace=0, hspace=0)
     imax = abs(weights).max()
     for x in range(grid[0]):
         for y in range(grid[1]):
             axs[x, y].set_xticks([])
             axs[x, y].set_yticks([])
-            axs[x, y].imshow(weights[:, :, y + grid[1] * x], cmap="bwr", vmin=-imax, vmax=imax, interpolation=None)
-    plt.savefig("rf.iter%06d.png" % it)
+            axs[x, y].imshow(weights[:, :, y + grid[1] * x],
+                             cmap="bwr", vmin=-imax, vmax=imax, interpolation=None)
+    plt.savefig("./lab4/images/rf.iter%06d.png" % it)
     plt.close('all')
 
 

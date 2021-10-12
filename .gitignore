@@ -162,3 +162,6 @@ fabric.properties
 # Ignore all local history of files
 **/.history
 .vscode/launch.json
+
+
+./lab4/images/
