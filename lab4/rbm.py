@@ -3,7 +3,7 @@ from math import ceil
 import numpy as np
 import os
 import datetime
-from sklearn.metrics import mean_square_error
+from sklearn.metrics import mean_squared_error
 
 
 class RestrictedBoltzmannMachine:
@@ -136,7 +136,7 @@ class RestrictedBoltzmannMachine:
             if iteration % self.print_period == 0:
                 _, h = self.get_h_given_v(visible_trainset)
                 _, reconstruction = self.get_v_given_h(h)
-                loss = mean_square_error(visible_trainset, reconstruction)
+                loss = mean_squared_error(visible_trainset, reconstruction)
                 self.losses.append(loss)
                 print(
                     "iteration=%7d recon_loss=%4.4f" % (iteration, loss))
