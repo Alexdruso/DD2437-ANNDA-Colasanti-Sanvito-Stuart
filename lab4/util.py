@@ -70,7 +70,7 @@ def load_idxfile(filename):
     import struct
     import os
 
-    with open(os.path.join(os.getcwd(), 'lab4', filename), 'rb') as _file:
+    with open(os.path.join(os.getcwd(), filename), 'rb') as _file:
         if ord(_file.read(1)) != 0 or ord(_file.read(1)) != 0:
             raise Exception('Invalid idx file: unexpected magic number!')
         dtype, ndim = ord(_file.read(1)), ord(_file.read(1))
@@ -107,7 +107,7 @@ def read_mnist(dim=None, n_train=60000, n_test=1000):
     return train_imgs[:n_train], train_lbls_1hot[:n_train], test_imgs[:n_test], test_lbls_1hot[:n_test]
 
 
-def viz_rf(weights, it, grid):
+def viz_rf(weights, it, grid, directory):
     """
     Visualize receptive fields and save
     """
@@ -121,7 +121,8 @@ def viz_rf(weights, it, grid):
             axs[x, y].set_yticks([])
             axs[x, y].imshow(weights[:, :, y + grid[1] * x],
                              cmap="bwr", vmin=-imax, vmax=imax, interpolation=None)
-    plt.savefig("./lab4/images/rf.iter%06d.png" % it)
+
+    plt.savefig("%s/rf.iter%06d.png" % (directory, it))
     plt.close('all')
 
 

@@ -1,6 +1,8 @@
 from util import *
 from math import ceil
 import numpy as np
+import os
+import datetime
 
 
 class RestrictedBoltzmannMachine:
@@ -87,6 +89,10 @@ class RestrictedBoltzmannMachine:
 
         print("learning CD1")
 
+        directory = './images/units_%d_%s' % (
+            self.ndim_hidden, datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S'))
+        os.mkdir(directory)
+
         samples_number = visible_trainset.shape[0]
 
         # number of mini batch in each iteration
@@ -123,7 +129,7 @@ class RestrictedBoltzmannMachine:
 
             if iteration % self.rf["period"] == 0 and self.is_bottom:
                 viz_rf(weights=self.weight_vh[:, self.rf["ids"]].reshape((self.image_size[0], self.image_size[1], -1)),
-                       it=iteration, grid=self.rf["grid"])
+                       it=iteration, grid=self.rf["grid"], directory=directory)
 
             # print progress
             if iteration % self.print_period == 0:
