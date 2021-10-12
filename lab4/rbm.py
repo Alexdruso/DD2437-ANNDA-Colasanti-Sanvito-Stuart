@@ -75,6 +75,8 @@ class RestrictedBoltzmannMachine:
             "ids": np.random.randint(0, self.ndim_hidden, 25)
         }
 
+        self.losses = []
+
     def cd1(self, visible_trainset, iterations_number=10000):
         """Contrastive Divergence with k=1 full alternating Gibbs sampling
 
@@ -89,6 +91,11 @@ class RestrictedBoltzmannMachine:
 
         # number of mini batch in each iteration
         batches_number = ceil(samples_number / self.batch_size)
+
+        self.losses = []
+        self.delta_weight_vh_norm = []
+        self.delta_bias_v_norm = []
+        self.delta_bias_h_norm = []
 
         for iteration in range(iterations_number):
             np.random.shuffle(visible_trainset)
@@ -119,12 +126,18 @@ class RestrictedBoltzmannMachine:
                        it=iteration, grid=self.rf["grid"])
 
             # print progress
-
             if iteration % self.print_period == 0:
                 _, h = self.get_h_given_v(visible_trainset)
                 _, reconstruction = self.get_v_given_h(h)
+                loss = np.linalg.norm(visible_trainset - reconstruction)
+                self.losses.append(loss)
                 print(
-                    "iteration=%7d recon_loss=%4.4f" % (iteration, np.linalg.norm(visible_trainset - reconstruction)))
+                    "iteration=%7d recon_loss=%4.4f" % (iteration, loss))
+
+            self.delta_weight_vh_norm.append(
+                np.linalg.norm(self.delta_weight_vh))
+            self.delta_bias_v_norm.append(np.linalg.norm(self.delta_bias_v))
+            self.delta_bias_h_norm.append(np.linalg.norm(self.delta_bias_h))
 
     def update_params(self, v_0, h_0, v_k, h_k):
         """Update the weight and bias parameters.
