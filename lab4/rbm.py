@@ -141,8 +141,8 @@ class RestrictedBoltzmannMachine:
         self.delta_bias_h = self.learning_rate * (np.sum(h_0 - h_k, axis=0))
         self.delta_weight_vh = self.learning_rate * ((v_0.T @ h_0) - (v_k.T @ h_k))
 
-        self.bias_v += self.delta_bias_v
         self.weight_vh += self.delta_weight_vh
+        self.bias_v += self.delta_bias_v
         self.bias_h += self.delta_bias_h
 
     def get_h_given_v(self, visible_minibatch):
