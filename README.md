@@ -1,4 +1,4 @@
-# Artificial Neural Networks and Deep Architercures labs
+# Artificial Neural Networks and Deep Architectures labs
 
 **Professors:** Pawel Herman, Erik Fransén 
 
