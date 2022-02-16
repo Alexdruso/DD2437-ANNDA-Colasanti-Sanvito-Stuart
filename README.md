@@ -1,5 +1,12 @@
 # Artifical Neural Networks and Deep Architercures labs
 
+**Professors:** Pawel Herman, Erik Fransén 
+
+**Students**:
+- Luca Colasanti
+- Alessandro Sanvito
+- Thuany Stuart
+
 This repository contains the lab assignments for the course DD2437-Artificial neural networks and deep architectures at KTH. Each folder contains the assignment in pdf format, a notebook with the experiments performed for the lab, and the code for a variety of Neural Networks.
 
 In particular, each lab comprises the following implementations:
