@@ -10,7 +10,7 @@ def _sign(X: np.array) -> np.array:
 
 
 def _predict_batch(weights: np.array, X: np.array, bias: float, sparsity: float) -> np.array:
-    return 0.5 + 0.5 * _sign(X @ weights - bias) if sparsity > 0.0 else _sign(X @ weights - bias)
+    return 0.5 + 0.5 * _sign(X @ weights - bias) if sparsity > 0.0 else _sign(X @ weights)
 
 
 def _predict_sequential(weights: np.array, X: np.array, bias: float, sparsity: float) -> np.array:
@@ -19,7 +19,7 @@ def _predict_sequential(weights: np.array, X: np.array, bias: float, sparsity: f
     for feature in random.sample(range(0, features_number), features_number):
         # N X 1 = N X M @ M X 1
         prediction[:, feature] = 0.5 + 0.5 * _sign(prediction @ weights[:, feature] - bias) if sparsity > 0.0 \
-            else _sign(prediction @ weights[:, feature] - bias)
+            else _sign(prediction @ weights[:, feature])
     return prediction
 
 
