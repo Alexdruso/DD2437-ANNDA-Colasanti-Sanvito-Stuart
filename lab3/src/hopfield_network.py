@@ -9,22 +9,23 @@ def _sign(X: np.array) -> np.array:
     return np.where(X > 0, 1, -1)
 
 
-def _predict_batch(weights: np.array, X: np.array, bias: float, sparsity: bool) -> np.array:
-    return 0.5 + 0.5 * _sign(X @ weights - bias) if sparsity > 0.0 else _sign(X @ weights)
+def _predict_batch(weights: np.array, X: np.array, bias: float, sparsity: float) -> np.array:
+    return 0.5 + 0.5 * _sign(X @ weights - bias) if sparsity > 0.0 else _sign(X @ weights - bias)
 
 
-def _predict_sequential(weights: np.array, X: np.array, bias: float, sparsity: bool) -> np.array:
+def _predict_sequential(weights: np.array, X: np.array, bias: float, sparsity: float) -> np.array:
     features_number = X.shape[1]
     prediction = X.copy()
     for feature in random.sample(range(0, features_number), features_number):
         # N X 1 = N X M @ M X 1
-        prediction[:, feature] = _sign(prediction @ weights[:, feature] - bias) if sparsity > 0.0 \
-            else _sign(prediction @ weights[:, feature])
+        prediction[:, feature] = 0.5 + 0.5 * _sign(prediction @ weights[:, feature] - bias) if sparsity > 0.0 \
+            else _sign(prediction @ weights[:, feature] - bias)
     return prediction
 
 
 def _get_energy(weights: np.array, prediction: np.array) -> np.array:
-    energy = -prediction @ (weights @ prediction.T)
+    # Extract per-pattern energy from the diagonal of the (N, N) product
+    energy = np.diag(-prediction @ (weights @ prediction.T))
     return energy
 
 
